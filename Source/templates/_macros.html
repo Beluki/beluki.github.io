@@ -1,0 +1,11 @@
+
+{# Generate an unordered list from an iterable (such as posts). #}
+
+{% macro listing(iterable) %}
+    <ul>
+        {% for item in iterable %}
+            <li> {{ caller(item) }} </li>
+        {% endfor %}
+    </ul>
+{% endmacro %}
+
