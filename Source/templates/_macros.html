@@ -9,3 +9,19 @@
     </ul>
 {% endmacro %}
 
+
+{# Translate ascii tag names to the final printed names. #}
+
+{% set tag_translations = {
+        'diseno'       : 'diseño',
+        'ficcion'      : 'ficción',
+        'musica'       : 'música',
+        'poesia'       : 'poesía',
+        'programacion' : 'programación',
+    }
+%}
+
+{% macro translate_tag(tag) %}
+    {{- tag_translations[tag] or tag -}}
+{% endmacro %}
+

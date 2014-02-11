@@ -179,3 +179,20 @@ a {
     padding: 0.5em;
 }
 
+
+/* Disqus. */
+
+#disqus_thread {
+    margin: 1em;
+}
+
+
+/* Poetry. */
+
+.poetry {
+    font-family: Georgia, serif;
+    font-size: 0.875em;
+    margin: 0.25em;
+    padding: 0.5em;
+}
+

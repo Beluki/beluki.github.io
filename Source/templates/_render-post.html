@@ -1,4 +1,6 @@
 
+{% from '_macros.html' import translate_tag %}
+
 <div class="title">
     {{ post.meta.title }}
 </div>
@@ -8,7 +10,7 @@
 
     <div class="multilink">
         {% for tag in post.meta.tags %}
-            <a href="{{ url_tag(tag) }}">{{ tag }}</a>
+            <a href="{{ url_tag(tag) }}">{{ translate_tag(tag) }}</a>
 
             {% if not loop.last %} | {% endif %}
         {% endfor %}
