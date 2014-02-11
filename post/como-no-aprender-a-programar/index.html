@@ -1,0 +1,121 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Beluki</title>
+        <link rel="stylesheet" href="/static/style.css" type="text/css">
+        <link rel="stylesheet" href="/static/codehilite.css" type="text/css">
+    </head>
+
+    <body>
+        <div class="top-bar">
+            <ul>
+                <li> <a href="/">índice</a> </li>
+                <li> <a href="/archive/">archivo</a> </li>
+                <li> <a href="/page/about/">acerca de</a> </li>
+            </ul>
+        </div>
+        <div class="wrapper">
+            
+    
+
+
+<div class="title">
+    Cómo no aprender a programar
+</div>
+
+<div class="subtitle">
+    septiembre 11, 2013
+
+    <div class="multilink">
+        
+            <a href="/tag/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Si me preguntases, hace un tiempo habría dicho que una buena introducción
+práctica a la programación sería tratar de resolver los problemas planteados
+en los ejercicios del <a href="http://projecteuler.net">Proyecto Euler</a>. Escoger un lenguaje, por ejemplo
+Scheme o Python, e ir resolviendo.</p>
+<p>A día de hoy mi respuesta sería bien distinta.</p>
+<p>El primer problema consiste en calcular la suma de todos los números naturales
+menores de 1000 que sean múltiplos de 3 o 5. Una posible solución, escrita
+en <a href="http://racket-lang.org">Racket</a>, es la siguiente:</p>
+<div class="codehilite"><pre><span class="kn">#lang racket/base</span>
+
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">multiple-of-3-or-5?</span> <span class="nv">n</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nb">zero? </span><span class="p">(</span><span class="nb">modulo </span><span class="nv">n</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="p">(</span><span class="nb">zero? </span><span class="p">(</span><span class="nb">modulo </span><span class="nv">n</span> <span class="mi">5</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">for/fold</span> <span class="p">([</span><span class="nf">sum</span> <span class="mi">0</span><span class="p">])</span>
+          <span class="p">([</span><span class="nf">i</span> <span class="p">(</span><span class="nf">in-range</span> <span class="mi">1000</span><span class="p">)]</span>
+           <span class="kd">#:when</span> <span class="p">(</span><span class="nf">multiple-of-3-or-5?</span> <span class="nv">i</span><span class="p">))</span>
+    <span class="p">(</span><span class="nb">+ </span><span class="nv">sum</span> <span class="nv">i</span><span class="p">))</span>
+</pre></div>
+
+
+<p><a href="http://es.wikipedia.org/wiki/Niklaus_Wirth">Niklaus Wirth</a> dijo allá por 1976 que "algoritmos + datos = programas".
+Si analizamos el texto anterior vemos que hay algoritmos, expresados en
+forma de función: "multiple-of-3-or-5?", y vemos que hay datos, como el
+rango de números de 1 a 1000. ¿Podemos decir entonces que es un programa?
+Claramente podemos, pero sin embargo no se parece gran cosa a un programa "real".</p>
+<p>Cuando estudié informática, me enseñaron a programar de un modo similar. Nos
+proponían pequeños ejercicios, <a href="http://lema.rae.es/drae/?val=puzle">puzles</a>, cosas como: "encuentra el elemento X
+en la lista enlazada Y" o "ordena este vector de N elementos". Creo que es una
+manera horrible de aprender.</p>
+<h2>El otro 90%</h2>
+<p>La pregunta clave es: ¿qué falta aquí?.</p>
+<p>Cada vez estoy más convencido de que la parte difícil de la programación no es
+la algoritmia. Diría que el 10% de un programa es pura algoritmia. El otro
+90% es control de errores, I/O a archivos o sockets, localización tanto de
+lenguaje como de moneda o huso horario, codificación (unicode, shift-jis, etc),
+aprovechamiento de recursos (múltiples procesadores, memoria), diseño modular
+en componentes y librerías, interactuar con programas y librerías escritas
+por otras personas, portabilidad entre arquitecturas, etc...</p>
+<p>No hay nada de eso en el programa anterior.</p>
+<p>Crear algo en el laboratorio es fácil, es un entorno seguro sin agentes
+externos. Todo está bajo un estricto control. En la vida real, ni siquiera
+el enunciado del problema está completamente especificado. Los requerimientos
+cambian día a día.</p>
+<p>La mayoría de problemas importantes en algoritmia ya han sido resueltos. Las
+matemáticas son exactas. Sin embargo, se discute día a día sobre patrones y
+métodos para estructurar el código que hagan más sencilla su comprensión. Se
+discute sobre dinámicas de trabajo en equipo que permitan a las personas
+cooperar más eficientemente.</p>
+<p>¿Quieres aprender a programar? Lee el código de un programa que uses día a día
+y analíza su diseño. Trata de modificarlo. Ignora "qué" e intenta entender el
+porqué de cada decisión y sus consecuencias.</p>
+</div>
+
+    
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    (function() {
+        var disqus = document.createElement('script');
+
+        disqus.type = 'text/javascript';
+        disqus.async = true;
+        disqus.src = '//beluki.disqus.com/embed.js';
+
+        (document.getElementsByTagName('head')[0] ||
+         document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+</script>
+
+<noscript>
+    <div class="content">
+        <p> (no se pueden mostrar los comentarios, Javascript está desactivado) </p>
+    </div>
+</noscript>
+
+
+        </div>
+    </body>
+</html>
