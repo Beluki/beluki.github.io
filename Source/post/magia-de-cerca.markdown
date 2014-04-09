@@ -23,8 +23,8 @@ tags: ['poesia']
 
     Me miró como ese niño
     que algo esconde pero calla.
-    ¿será ésta? - yo le dije:
-    ¡no puede ser! ¡ésto es magia!
+    ¿Será ésta? - yo le dije:
+    ¡no puede ser! ¡esto es magia!
 
     Magia sí, pero de cerca,
     es magia sobre las palmas,

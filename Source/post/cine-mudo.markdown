@@ -18,7 +18,7 @@ tags: ['poesia']
     Una neurona me dijo,
     que se declaraba en huelga.
 
-    Ésto pasa por robarle,
+    Esto pasa por robarle,
     horas de más a la siesta.
     Yo qué sé, elige tú,
     a mí me vale cualquiera.
