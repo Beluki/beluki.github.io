@@ -12,6 +12,7 @@ import os
 import posixpath
 import sys
 import time
+import traceback
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
@@ -20,19 +21,24 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 def outln(line):
     """ Write 'line' to stdout, using the platform encoding and newline format. """
-    print(line)
+    print(line, flush = True)
 
 
 def errln(line):
     """ Write 'line' to stderr, using the platform encoding and newline format. """
-    print(line, file = sys.stderr)
+    print('blog.py: error:', line, file = sys.stderr, flush = True)
+
+
+def warnln(line):
+    """ Like errln() but for warning messages. """
+    print('blog.py: warning:', line, file = sys.stderr, flush = True)
 
 
 # Non-builtin imports:
 
 try:
     from flask import Flask, abort, render_template, render_template_string, request, url_for
-    from flask_frozen import Freezer
+    from flask_frozen import Freezer, relative_url_for
     from MetaFiles import MetaFiles
 
     import markdown
@@ -57,66 +63,37 @@ def merge_dicts(a, b):
     return dict(list(a.items()) + list(b.items()))
 
 
-# Default metadata renderer, YAML:
+# Default metadata renderer for pages and posts: YAML:
 
-def validate_metadata(metadata):
-    """ Ensure that 'metadata' is either empty or a dict. """
-    if not metadata:
+def default_meta_renderer(meta):
+    metadata = yaml.load(meta)
+
+    # empty metadata:
+    if metadata is None:
         return {}
 
+    # dict?
     if not isinstance(metadata, dict):
-        raise ValueError('Invalid metadata, not a dict: %s' % metadata)
+        raise ValueError('Invalid metadata, not a dict: %s' % str(metadata))
 
     return metadata
 
-def meta_renderer(meta):
-    metadata = yaml.load(meta)
-    return validate_metadata(metadata)
 
+# Default body renderer: none for pages, markdown for posts:
 
-# Default body renderers, none for pages, markdown for posts:
-
-def page_renderer(body):
+def default_page_renderer(body):
     return body
 
-def post_renderer(body):
+def default_post_renderer(body):
     return markdown.markdown(body, extensions = ['codehilite'])
-
-
-# Sensible default configuration:
-
-DEFAULT_CONFIGURATION = {
-    'DEBUG': True,
-
-    'PAGE_ROOT': 'page',
-    'PAGE_EXTENSIONS': '.html',
-    'PAGE_ENCODING': 'utf-8-sig',
-    'PAGE_META_RENDERER': meta_renderer,
-    'PAGE_BODY_RENDERER': page_renderer,
-
-    'POST_ROOT': 'post',
-    'POST_EXTENSIONS': '.markdown',
-    'POST_ENCODING': 'utf-8-sig',
-    'POST_META_RENDERER': meta_renderer,
-    'POST_BODY_RENDERER': post_renderer,
-
-    'FREEZER_BASE_URL': 'http://localhost/',
-    'FREEZER_DESTINATION': 'build',
-    'FREEZER_DESTINATION_IGNORE': ['.*'],
-    'FREEZER_RELATIVE_URLS': False,
-    'FREEZER_REMOVE_EXTRA_FILES': True,
-
-    'WWW_HOST': '127.0.0.1',
-    'WWW_PORT': 8000,
-}
 
 
 # Data representation:
 
 class Target(object):
     """
-    A Target is a MetaFile wrapper with an additional 'path'.
-    It represents a post or a page in the blog.
+    A Target is a MetaFile wrapper with an additional 'path' property.
+    It represents a page or a post in the blog.
     """
     def __init__(self, metafile, path):
         self.metafile = metafile
@@ -130,22 +107,22 @@ class Target(object):
     def body(self):
         return self.metafile.body
 
+    @staticmethod
+    def from_metafiles(metafiles):
+        """
+        Iterate 'metafiles' yielding Target instances with a 'path' from them.
+        The 'path' is set to the full filepath *without extension* from the
+        metafiles root, using posix separators.
+        """
+        for metafile in metafiles:
+            fullbase, extension = os.path.splitext(metafile.filepath)
+            path = os.path.relpath(fullbase, metafiles.root)
+            path = path.replace(os.sep, posixpath.sep)
 
-def metafiles_as_targets(metafiles):
-    """
-    Iterate 'metafiles', yielding Target items with a 'path' from them.
-    The 'path' is the full filepath *without extension* from the
-    metafiles root, using posix separators.
-    """
-    for metafile in metafiles:
-        fullbase, extension = os.path.splitext(metafile.filepath)
-        path = os.path.relpath(fullbase, metafiles.root)
-        path = path.replace(os.sep, posixpath.sep)
-
-        yield Target(metafile, path)
+            yield Target(metafile, path)
 
 
-class Context(object):
+class Content(object):
     """ Maintains the collection of pages and posts in the blog. """
 
     def __init__(self):
@@ -160,7 +137,7 @@ class Context(object):
         self._posts_metafiles = None
 
     def initialize(self, config):
-        """ Configure context options from a given 'config' dictionary. """
+        """ Configure content options from a given 'config' dictionary. """
         self._pages_metafiles = MetaFiles(
             root        = config['PAGE_ROOT'],
             extensions  = config['PAGE_EXTENSIONS'],
@@ -186,7 +163,7 @@ class Context(object):
         pages = []
         pages_by_path = {}
 
-        for page in metafiles_as_targets(self._pages_metafiles):
+        for page in Target.from_metafiles(self._pages_metafiles):
             pages.append(page)
             pages_by_path[page.path] = page
 
@@ -207,7 +184,7 @@ class Context(object):
         posts_by_path = {}
         posts_by_tag = {}
 
-        for post in metafiles_as_targets(self._posts_metafiles):
+        for post in Target.from_metafiles(self._posts_metafiles):
             if 'date' in post.meta:
                 posts.append(post)
                 posts_by_path[post.path] = post
@@ -232,25 +209,17 @@ class Context(object):
 
     @property
     def environment(self):
-        """ Returns a dict containing all our data, for template rendering. """
+        """ Return the content as a dict suitable for template rendering. """
         return {
             'pages'         : self.pages,
             'pages_by_path' : self.pages_by_path,
             'posts'         : self.posts,
             'posts_by_path' : self.posts_by_path,
-            'posts_by_tag'  : self.posts_by_tag,
+            'posts_by_tag'  : self.posts_by_tag
         }
 
-    def render_template(self, template, **context):
-        """
-        Like Flask's 'render_template()' but includes our own environment
-        as well as the variables passed as parameters.
-        """
-        environment = merge_dicts(self.environment, context)
-        return render_template(template, **environment)
 
-
-# Pagination:
+# Pagination support:
 
 class Pagination(object):
     """
@@ -288,141 +257,210 @@ class Pagination(object):
         return self.iterable[offset:length]
 
 
-# Flask application:
+# Actual blog application:
 
-blog = Flask(__name__)
-blog.config.update(DEFAULT_CONFIGURATION)
-context = Context()
+class Blog(object):
 
+    def __init__(self):
+        self.app = Flask(__name__)
+        self.app.config.update(self.default_configuration)
 
-# Initialization and reloading:
+        self.content = Content()
+        self.freezing = False
 
-@blog.before_first_request
-def init_context():
-    context.initialize(blog.config)
-    context.load()
+    @property
+    def default_configuration(self):
+        """ Sensible defaults for all our configuration options. """
+        return {
+            'DEBUG': True,
 
-@blog.before_request
-def auto_update_context_on_debug():
-    if blog.debug:
+            'PAGE_ROOT': 'page',
+            'PAGE_EXTENSIONS': '.html',
+            'PAGE_ENCODING': 'utf-8-sig',
+            'PAGE_META_RENDERER': default_meta_renderer,
+            'PAGE_BODY_RENDERER': default_page_renderer,
 
-        # avoid reloading content on static files:
-        if request.endpoint == 'static':
+            'POST_ROOT': 'post',
+            'POST_EXTENSIONS': '.markdown',
+            'POST_ENCODING': 'utf-8-sig',
+            'POST_META_RENDERER': default_meta_renderer,
+            'POST_BODY_RENDERER': default_post_renderer,
+
+            'FREEZER_BASE_URL': 'http://localhost/',
+            'FREEZER_DESTINATION': 'build',
+            'FREEZER_DESTINATION_IGNORE': ['.*'],
+            'FREEZER_RELATIVE_URLS': False,
+            'FREEZER_REMOVE_EXTRA_FILES': True,
+
+            'WWW_HOST': '127.0.0.1',
+            'WWW_PORT': 8000,
+        }
+
+    def _install_content_handlers(self):
+        """
+        Install functions to initialize content on the first request
+        and auto-reload it on each request, unless freezing.
+        """
+        @self.app.before_first_request
+        def init_content():
+            self.content.initialize(self.app.config)
+            self.content.load()
+
+        if self.freezing:
             return
 
-        # reload on explicit view requests (e.g. not favicons):
-        if request.endpoint in blog.view_functions:
-            context.load()
+        @self.app.before_request
+        def auto_update_content():
+            # avoid reloading on static files:
+            if request.endpoint == 'static':
+                return
 
+            # reload on explicit view requests only (e.g. not favicons):
+            if request.endpoint in self.app.view_functions:
+                self.content.load()
 
-# Template additions:
+    def _install_template_filters(self):
+        """
+        Install additional template filters to support pagination
+        and templatize posts.
+        """
+        @self.app.template_filter('templatize')
+        def templatize(text, environment = {}):
+            return render_template_string(text, **environment)
 
-@blog.template_filter('templatize')
-def templatize(text, environment = {}):
-    return render_template_string(text, **environment)
+        @self.app.template_filter('paginate')
+        def paginate(iterable, page, per_page):
+            return Pagination(iterable, page, per_page)
 
-@blog.template_filter('paginate')
-def paginate(iterable, page, per_page):
-    return Pagination(iterable, page, per_page)
+    def _install_url_for_wrappers(self):
+        """
+        Add convenient url_for() shortcuts.
+        """
+        # python code is unaffected by Frozen-Flask unless
+        # it explicitly uses relative_url_for(), so check:
 
+        if self.app.config['FREEZER_RELATIVE_URLS']:
+            current_url_for = relative_url_for
+        else:
+            current_url_for = url_for
 
-# Convenient url_for() wrappers:
+        def url_index(page = None):
+            return current_url_for('index', page = page)
 
-def url_index(page = None):
-    return url_for('index', page = page)
+        def url_archive(tag = None):
+            return current_url_for('archive', tag = tag)
 
-def url_archive():
-    return url_for('archive')
+        def url_page(page):
+            return current_url_for('page', path = page.path)
 
-def url_page(page):
-    return url_for('page', path = page.path)
+        def url_page_by_path(path):
+            return current_url_for('page', path = path)
 
-def url_page_by_path(path):
-    return url_for('page', path = path)
+        def url_post(post):
+            return current_url_for('post', path = post.path)
 
-def url_post(post):
-    return url_for('post', path = post.path)
+        def url_post_by_path(path):
+            return current_url_for('post', path = path)
 
-def url_post_by_path(path):
-    return url_for('post', path = path)
+        def url_static(filename):
+            return current_url_for('static', filename = filename)
 
-def url_tag(tag):
-    return url_for('tag', tag = tag)
+        @self.app.context_processor
+        def url_for_wrappers():
+            return {
+                'url_index'        : url_index,
+                'url_archive'      : url_archive,
+                'url_page'         : url_page,
+                'url_page_by_path' : url_page_by_path,
+                'url_post'         : url_post,
+                'url_post_by_path' : url_post_by_path,
+                'url_static'       : url_static
+            }
 
-def url_static(filename):
-    return url_for('static', filename = filename)
+    def _install_routes(self):
+        """
+        Add routes for the index, archive, pages and posts.
+        """
+        @self.app.route('/')
+        @self.app.route('/<int:page>/')
+        def index(page = 1):
+            return self.render_template('index.html', page = page)
 
+        @self.app.route('/archive/')
+        @self.app.route('/archive/<tag>/')
+        def archive(tag = None):
+            if tag is not None and not tag in self.content.posts_by_tag:
+                abort(404)
+            return self.render_template('archive.html', tag = tag)
 
-# Note that those are provided for both templates and pages/posts,
-# given 'templatize' is available:
+        @self.app.route('/page/<path:path>/')
+        def page(path):
+            current_page = self.content.pages_by_path.get(path) or abort(404)
+            return self.render_template('page.html', page = current_page)
 
-@blog.context_processor
-def url_for_wrappers():
-    return {
-        'url_index'        : url_index,
-        'url_archive'      : url_archive,
-        'url_page'         : url_page,
-        'url_page_by_path' : url_page_by_path,
-        'url_post'         : url_post,
-        'url_post_by_path' : url_post_by_path,
-        'url_tag'          : url_tag,
-        'url_static'       : url_static,
-    }
+        @self.app.route('/post/<path:path>/')
+        def post(path):
+            current_post = self.content.posts_by_path.get(path) or abort(404)
+            return self.render_template('post.html', post = current_post)
 
+    def _install_everything(self):
+        """
+        Install everything needed for the blog to run.
+        """
+        self._install_content_handlers()
+        self._install_template_filters()
+        self._install_url_for_wrappers()
+        self._install_routes()
 
-# Routes:
+    def render_template(self, template, **context):
+        """
+        Like Flask's 'render_template()' but includes the blog content
+        as well as the variables passed as parameters.
+        """
+        environment = merge_dicts(self.content.environment, context)
+        return render_template(template, **environment)
 
-@blog.route('/', defaults = { 'page': 1 })
-@blog.route('/<int:page>/')
-def index(page):
-    return context.render_template('index.html', page = page)
+    def serve(self):
+        """
+        Run in server mode.
+        """
+        self.freezing = False
+        self.app.config.from_pyfile('blog.conf', silent = True)
+        self._install_everything()
 
-@blog.route('/archive/')
-def archive():
-    return context.render_template('archive.html')
+        self.app.run(host = self.app.config['WWW_HOST'],
+                     port = self.app.config['WWW_PORT'],
 
-@blog.route('/page/<path:path>/')
-def page(path):
-    page = context.pages_by_path.get(path) or abort(404)
-    return context.render_template('page.html', page = page)
+                     # also reload on configuration file changes:
+                     extra_files = ['blog.conf', 'freezing.conf'])
 
-@blog.route('/post/<path:path>/')
-def post(path):
-    post = context.posts_by_path.get(path) or abort(404)
-    return context.render_template('post.html', post = post)
+    def freeze(self):
+        """
+        Freeze the blog state to disk.
+        """
+        self.freezing = True
+        self.app.config.from_pyfile('blog.conf', silent = True)
+        self.app.config.from_pyfile('freezing.conf', silent = True)
+        self._install_everything()
 
-@blog.route('/tag/<path:tag>/')
-def tag(tag):
-    context.posts_by_tag.get(tag) or abort(404)
-    return context.render_template('tag.html', tag = tag)
+        try:
+            outln('Freezing...')
 
+            start = time.clock()
+            total = Freezer(self.app).freeze()
 
-# Running modes:
+            outln('Frozen: %s items.' % len(total))
+            outln('Time: %s seconds.' % (time.clock() - start))
 
-def run_freezer():
-    """ Freeze the current site state to the output folder. """
-    blog.config.from_pyfile('freezing.conf', silent = True)
+        except Exception as err:
+            errln('Exception while freezing: %s' % str(err))
 
-    if blog.debug:
-        errln('Freezing in debug mode is slow.')
-        errln('Set DEBUG = False in freezing.conf for a speed boost.')
+            if not self.app.debug:
+                warnln('The following traceback is not comprehensive.')
+                warnln('Set DEBUG = True in freezing.conf for a more detailed traceback.')
 
-    outln('Freezing...')
-
-    start = time.clock()
-    total = Freezer(blog).freeze()
-
-    outln('Frozen: %s items.' % len(total))
-    outln('Time: %s seconds.' % (time.clock() - start))
-
-
-def run_server():
-    """ Run the local web server and watch for changes. """
-    blog.run(host = blog.config['WWW_HOST'],
-             port = blog.config['WWW_PORT'],
-
-             # also reload on configuration file changes:
-             extra_files = ['blog.conf', 'freezing.conf'])
+            traceback.print_exc()
+            sys.exit(1)
 
 
 # Parser:
@@ -452,13 +490,13 @@ def main():
     parser = make_parser()
     options = parser.parse_args()
 
-    blog.config.from_pyfile('blog.conf', silent = True)
+    blog = Blog()
 
     if options.server:
-        run_server()
+        blog.serve()
 
     if options.freeze:
-        run_freezer()
+        blog.freeze()
 
 
 if __name__ == '__main__':
