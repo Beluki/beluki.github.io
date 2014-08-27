@@ -44,7 +44,7 @@ La respuesta está en la siguiente imagen, tomada de [Process Explorer][]:
 
 [Process Explorer]: http://technet.microsoft.com/en-us/sysinternals/bb896653.aspx
 
-<img src="{{ url_for('static', filename = '7.png') }}" alt="Process Explorer">
+<img src="{{ url_static('7.png') }}" alt="Process Explorer">
 
 Un proceso de Windows no se termina hasta que [todos sus hilos terminan][].
 4kGL en realidad no usa uno, sino dos hilos. El segundo procede del driver
