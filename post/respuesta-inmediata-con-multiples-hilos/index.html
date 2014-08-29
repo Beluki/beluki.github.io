@@ -66,9 +66,8 @@ Queue, las ejecuta y añade el resultado (que se guarda en la propia tarea)
 a otra Queue. Entenderemos como tarea cualquier objeto que implemente un
 método "run()".</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">todo</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
-        <span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">todo</span> <span class="o">=</span> <span class="n">todo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="n">done</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
@@ -169,27 +168,33 @@ tarea completada tan pronto como se encuentre en los resultados:</p>
                 <span class="k">break</span>
 
             <span class="c"># give tasks processor time:</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 </pre></div>
 
 
 <p>Intentamos tomar una tarea completada, sin bloquear. Si no lo conseguimos,
 dormimos durante 0.1 segundos y lo intentamos de nuevo, hasta que una tarea
-ha sido completada. Como no bloqueamos, la función es capaz de responder
-ante una excepción como KeyboardInterrupt de modo apropiado.</p>
+ha sido completada.</p>
 <p>Ejemplo de uso:</p>
 <div class="codehilite"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">cpus</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">cpus</span><span class="p">)</span>
 
-    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">FibTask</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">)]</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">FibTask</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">33</span><span class="p">)]</span>
+    <span class="n">tasks</span> <span class="o">+=</span> <span class="p">[</span><span class="n">FibTask</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">33</span><span class="p">))]</span>
+
     <span class="n">pool</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">poll_completed_tasks</span><span class="p">():</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&#39;fib(</span><span class="si">%s</span><span class="s">): </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">))</span>
+    <span class="c"># should print the results in order</span>
+    <span class="c"># first from 1 to 32, then from 32 to 1:</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">poll_completed_tasks</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;fib({0.number}): {0.result}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
 
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="k">pass</span>
 </pre></div>
