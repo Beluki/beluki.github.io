@@ -38,9 +38,8 @@ método "run()".
 
     ::python
     class Worker(Thread):
-
         def __init__(self, todo, done):
-            Thread.__init__(self)
+            super().__init__()
             self.todo = todo
             self.done = done
             self.daemon = True
@@ -143,13 +142,12 @@ Donde wait_for_task() está implementado de la siguiente manera:
                     break
 
                 # give tasks processor time:
-                except:
+                except queue.Empty:
                     time.sleep(0.1)
 
 Intentamos tomar una tarea completada, sin bloquear. Si no lo conseguimos,
 dormimos durante 0.1 segundos y lo intentamos de nuevo, hasta que una tarea
-ha sido completada. Como no bloqueamos, la función es capaz de responder
-ante una excepción como KeyboardInterrupt de modo apropiado.
+ha sido completada.
 
 Ejemplo de uso:
 
@@ -158,13 +156,20 @@ Ejemplo de uso:
         cpus = cpu_count()
         pool = ThreadPool(cpus)
 
-        tasks = [FibTask(n) for n in range(1, 30)]
+        tasks = [FibTask(n) for n in range(1, 33)]
+        tasks += [FibTask(n) for n in reversed(range(1, 33))]
+
         pool.start(tasks)
 
-        try:
-            for task in pool.poll_completed_tasks():
-                print('fib(%s): %s' % (task.number, task.result))
+        # should print the results in order
+        # first from 1 to 32, then from 32 to 1:
+        for task in pool.poll_completed_tasks():
+            print('fib({0.number}): {0.result}'.format(task), flush = True)
 
+
+    if __name__ == '__main__':
+        try:
+            main()
         except KeyboardInterrupt:
             pass
 
