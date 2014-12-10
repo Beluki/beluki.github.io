@@ -4,8 +4,9 @@ tags: ['postmortem', 'programacion']
 
 Me he mudado hace unas semanas. El caso es, que con todo el trajín, mis proyectos
 han pasado a un segundo plano. Como también tengo este blog un tanto abandonado,
-creo que un buen modo es escribir unos cuantos post acerca de ellos. Hablar de las
-cosas que salieron bien y las que no tan bien, decisiones de diseño, etc...
+creo que un buen modo de volver a retomarlos es escribir unos cuantos post acerca de
+ellos. Hablar de las cosas que salieron bien y las que no tan bien, decisiones de
+diseño, etc...
 
 ## Sokoban
 
@@ -36,7 +37,7 @@ Lo primero que aprendí es que es difícil definir una base común.
 
 Los juegos necesitan control de teclado y ratón, las demos no. Las demos suelen
 verse a pantalla completa, los juegos en una ventana. Para un juego simple, 2D
-via [GDI][] es más que suficiente, las demo a menudo usan [OpenGL][] o [DirectX][].
+via [GDI][] es más que suficiente, las demos a menudo usan [OpenGL][] o [DirectX][].
 
 [DirectX]: http://es.wikipedia.org/wiki/DirectX
 [GDI]: http://es.wikipedia.org/wiki/Graphics_Device_Interface
