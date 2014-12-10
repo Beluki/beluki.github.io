@@ -47,16 +47,16 @@ Scheme o Python, e ir resolviendo.</p>
 <p>El primer problema consiste en calcular la suma de todos los números naturales
 menores de 1000 que sean múltiplos de 3 o 5. Una posible solución, escrita
 en <a href="http://racket-lang.org">Racket</a>, es la siguiente:</p>
-<div class="codehilite"><pre><span class="kn">#lang racket/base</span>
+<div class="codehilite"><pre><span class="kn">#lang </span><span class="nn">racket/base</span>
 
-<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">multiple-of-3-or-5?</span> <span class="nv">n</span><span class="p">)</span>
-    <span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nb">zero? </span><span class="p">(</span><span class="nb">modulo </span><span class="nv">n</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="p">(</span><span class="nb">zero? </span><span class="p">(</span><span class="nb">modulo </span><span class="nv">n</span> <span class="mi">5</span><span class="p">))))</span>
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">multiple-of-3-or-5?</span> <span class="n">n</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">or</span> <span class="p">(</span><span class="nb">zero?</span> <span class="p">(</span><span class="nb">modulo</span> <span class="n">n</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="p">(</span><span class="nb">zero?</span> <span class="p">(</span><span class="nb">modulo</span> <span class="n">n</span> <span class="mi">5</span><span class="p">))))</span>
 
-<span class="p">(</span><span class="nf">for/fold</span> <span class="p">([</span><span class="nf">sum</span> <span class="mi">0</span><span class="p">])</span>
-          <span class="p">([</span><span class="nf">i</span> <span class="p">(</span><span class="nf">in-range</span> <span class="mi">1000</span><span class="p">)]</span>
-           <span class="kd">#:when</span> <span class="p">(</span><span class="nf">multiple-of-3-or-5?</span> <span class="nv">i</span><span class="p">))</span>
-    <span class="p">(</span><span class="nb">+ </span><span class="nv">sum</span> <span class="nv">i</span><span class="p">))</span>
+<span class="p">(</span><span class="k">for/fold</span> <span class="p">([</span><span class="n">sum</span> <span class="mi">0</span><span class="p">])</span>
+          <span class="p">([</span><span class="n">i</span> <span class="p">(</span><span class="nb">in-range</span> <span class="mi">1000</span><span class="p">)]</span>
+           <span class="kd">#:when</span> <span class="p">(</span><span class="n">multiple-of-3-or-5?</span> <span class="n">i</span><span class="p">))</span>
+    <span class="p">(</span><span class="nb">+</span> <span class="n">sum</span> <span class="n">i</span><span class="p">))</span>
 </pre></div>
 
 
