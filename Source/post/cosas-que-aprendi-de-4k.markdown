@@ -87,6 +87,10 @@ Algo que lo que sin embargo no me quejo es de la API de Windows (al menos de
 las partes que he usado para 4k). Está bien documentada, es razonablemente
 simple y funciona. [Xlib][] es mucho más coñazo.
 
+Tampoco me quejo de la portabilidad entre compiladores y arquitecturas.
+El código compila sin cambios en todas las versiones que he podido testear
+de MSVC, GCC y Clang, tanto en 32 como en 64 bit.
+
 [Xlib]: http://es.wikipedia.org/wiki/Xlib
 
 ## Demos
@@ -115,4 +119,11 @@ Es cierto que hoy los sistemas operativos y en general los programas hacen
 cosas mucho más complejas que entonces. Hemos avanzado una barbaridad. Quizá
 sea la nostalgia, pero tengo la sensación de que en algún punto entre todo este
 progreso, se perdió algo importante.
+
+Repositorios en Github: [4k][] - [4k-Example][] - [4kGL][] - [4kGL-Example][]
+
+[4k]: https://github.com/Beluki/4k
+[4k-Example]: https://github.com/Beluki/4k-Example
+[4kGL]: https://github.com/Beluki/4kGL
+[4kGL-Example]: https://github.com/Beluki/4kGL-Example
 
