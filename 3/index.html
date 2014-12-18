@@ -30,6 +30,199 @@
 
 
 <div class="title">
+    Respuesta inmediata con múltiples hilos
+</div>
+
+<div class="subtitle">
+    septiembre 04, 2013
+
+    <div class="multilink">
+        
+            <a href="/archive/programacion/">programación</a>
+
+             | 
+        
+            <a href="/archive/python/">python</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>La idea básica de <a href="https://github.com/Beluki/MultiHash">MultiHash</a> consiste en calcular múltiples algoritmos,
+como md5, sha1, etc..., de múltiples archivos, leyendo cada archivo
+una sola vez.</p>
+<p>Aunque ésto ya mejora la eficiencia notablemente (con respecto a las
+herramientas en <a href="http://www.gnu.org/software/coreutils">coreutils</a>), podemos hacerlo mejor. La idea es dividir
+el trabajo en tareas, donde cada tarea calcula todos los algoritmos para
+un archivo. Una serie de hilos ejecuta estas tareas a la vez. En un equipo
+con 2 o más procesadores y un disco duro rápido (<a href="http://es.wikipedia.org/wiki/SSD">SSD</a>, <a href="http://es.wikipedia.org/wiki/RAID">RAID</a>)
+la diferencia de velocidad es considerable.</p>
+<p>Un problema interesante cuando se trabaja con hilos (aparte de sincronización)
+es cómo presentar los resultados al usuario, tan pronto como estén listos y
+en el orden correcto, independientemente de los hilos que acaben antes o que
+aún se estén ejecutando. El objetivo, desde un punto de vista de interfaz, es
+ocultar el hecho de que se están usando hilos, que debería ser un detalle
+interno, y dar la impresión de un programa secuencial normal.</p>
+<p>El resto de este post trata sobre cómo hacerlo en Python. Es esencialmente el
+mismo código que usa MultiHash, simplificado a modo de ejemplo.</p>
+<h2>Hilos y tareas</h2>
+<p>El primer paso es obvio, crear una subclase de Thread que toma tareas de una
+Queue, las ejecuta y añade el resultado (que se guarda en la propia tarea)
+a otra Queue. Entenderemos como tarea cualquier objeto que implemente un
+método "run()".</p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">todo</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">todo</span> <span class="o">=</span> <span class="n">todo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="n">done</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">todo</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">todo</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Las tareas simplemente calcularán números de fibonacci usando un algoritmo
+recursivo (y terriblemente ineficiente) guardando el resultado en una
+propiedad de la propia tarea:</p>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">FibTask</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="n">number</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">fib</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Finalmente, un ThreadPool empezará a ejecutar tareas usando tantos hilos
+como le pidamos al inicializar:</p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">ThreadPool</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threads</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="n">threads</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">todo</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Start computing tasks. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="n">tasks</span>
+
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">todo</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="p">):</span>
+            <span class="n">Worker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">todo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Esperando a las tareas terminadas</h2>
+<p>Aquí viene la parte interesante. El objeto que representa cada tarea
+puede ser su propio identificador. La propiedad ".tasks" de ThreadPool
+mantiene el orden inicial de las tareas. La propiedad ".results" contendrá
+las tareas completadas.</p>
+<p>Podemos añadir un método que itera el orden inicial y devuelve cada
+tarea completada tan pronto como se encuentre en los resultados:</p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">ThreadPool</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">poll_completed_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Yield the computed tasks, in the order specified when &#39;start(tasks)&#39;</span>
+<span class="sd">        was called, as soon as they are finished.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">task</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_task</span><span class="p">()</span>
+
+        <span class="c"># at this point, all the tasks are completed:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">todo</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Donde wait_for_task() está implementado de la siguiente manera:</p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">ThreadPool</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">wait_for_task</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Wait for one task to complete. &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="c"># give tasks processor time:</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Intentamos tomar una tarea completada, sin bloquear. Si no lo conseguimos,
+dormimos durante 0.1 segundos y lo intentamos de nuevo, hasta que una tarea
+ha sido completada.</p>
+<p>Ejemplo de uso:</p>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">cpus</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">cpus</span><span class="p">)</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">FibTask</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">33</span><span class="p">)]</span>
+    <span class="n">tasks</span> <span class="o">+=</span> <span class="p">[</span><span class="n">FibTask</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">33</span><span class="p">))]</span>
+
+    <span class="n">pool</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="c"># should print the results in order</span>
+    <span class="c"># first from 1 to 32, then from 32 to 1:</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">poll_completed_tasks</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;fib({0.number}): {0.result}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+
+<p>Aunque algunas tareas terminen antes que otras, los resultados se mostrarán
+en orden, tan pronto como sea factible. Control + C debe detener la ejecución
+correctamente.</p>
+<p>El código completo del ejemplo está disponible <a href="https://github.com/Beluki/Misc/blob/master/Source/ThreadPool/ThreadPool.py">aquí</a>.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/respuesta-inmediata-con-multiples-hilos/">permalink</a> |
+            <a href="/post/respuesta-inmediata-con-multiples-hilos/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Detalles que importan
 </div>
 
