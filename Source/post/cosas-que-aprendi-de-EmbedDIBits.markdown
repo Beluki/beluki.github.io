@@ -82,7 +82,7 @@ pequeño, como Sokoban 4k, puede dar lugar al nacimiento de otros 3 proyectos m�
 
 Este patrón se ha vuelto común en mí. Es además una manera cómoda de testear
 bien mis librerías, programas, etc..., porque cada proyecto depende de otros.
-Al final todos se testean mútuamente.
+Al final todos se testean mutuamente.
 
 Repositorios en Github: [EmbedDIBits][]
 
