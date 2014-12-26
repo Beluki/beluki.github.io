@@ -52,7 +52,7 @@ final de línea que desee ("--newline formato" en EmbedDIBits). Mi opinión es q
 un programa realmente portable debe comportarse igual en todas las plataformas
 y la salida que produce ha ser idéntica y reproducible.
 
-[PIL]: http://www.pythonware.com/products/pil
+[PIL]: http://www.pythonware.com/products/pil/
 [Pillow]: http://pillow.readthedocs.org
 
 ## Utilidades de consola

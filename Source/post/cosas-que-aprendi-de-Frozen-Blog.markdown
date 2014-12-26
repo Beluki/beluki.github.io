@@ -76,8 +76,8 @@ cosas como la siguiente:
     locale.setlocale(locale.LC_TIME, 'spanish')
 
 [Flask]: http://flask.pocoo.org
-[Flask-FlatPages]: https://github.com/SimonSapin/Flask-FlatPages/
-[Frozen-Flask]: https://github.com/SimonSapin/Frozen-Flask/
+[Flask-FlatPages]: https://github.com/SimonSapin/Flask-FlatPages
+[Frozen-Flask]: https://github.com/SimonSapin/Frozen-Flask
 [Nicolas Perriault]: https://nicolas.perriault.net/code/2012/dead-easy-yet-powerful-static-website-generator-with-flask/
 
 ## HTML y CSS
@@ -115,6 +115,6 @@ Repositorios en Github: [Frozen-Blog][] - [MetaFiles][]
 
 [Armin Ronacher]: http://lucumr.pocoo.org
 
-[Frozen-Blog]: https://github.com/Beluki/Frozen-Blog/
-[MetaFiles]: https://github.com/Beluki/MetaFiles/
+[Frozen-Blog]: https://github.com/Beluki/Frozen-Blog
+[MetaFiles]: https://github.com/Beluki/MetaFiles
 
