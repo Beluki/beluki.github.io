@@ -30,6 +30,100 @@
 
 
 <div class="title">
+    Más detalles que importan
+</div>
+
+<div class="subtitle">
+    septiembre 07, 2013
+
+    <div class="multilink">
+        
+            <a href="/archive/software/">software</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>En el primer post de este blog comentaba acerca de un detalle de Thunderbird
+con respecto a su tratamiento de archivos adjuntos que me gustó. Este post
+es un ejemplo de lo contrario, una lista de pequeños bugs o comportamientos
+irritantes en programas que uso a menudo.</p>
+<p>Estos bugs son especialmente molestos porque me los he encontrado en programas
+que usan miles de personas todos los días y - a priori - no parecen difíciles
+de solucionar.</p>
+<h2>Windows 7 - redimensionando la barra de estado</h2>
+<p><img class="align-left" src="/static/2.png" alt="Statusbar"></p>
+<p>Redimensionar una ventana del explorador que tenga una barra de estado causa
+la aparición de una minúscula línea negra vertical en el borde inferior derecho.</p>
+<p>Hasta donde he podido ver, ocurre con cualquier tarjeta gráfica e independientemente
+de estar usando <a href="http://es.wikipedia.org/wiki/Windows_Aero">Aero</a> o el tema básico de escritorio.</p>
+<p>Curiosamente, el bug solo ocurre si la ventana se redimensiona verticalmente.
+Tras maximizar, minimizar o redimensionar la ventana horizontalmente, la línea
+negra desaparece. No me acordé de probar si este problema existe también en
+Windows 8.</p>
+<h2>SMPlayer - por defecto, el ecualizador no funciona</h2>
+<p><img class="align-left" src="/static/3.png" alt="SMPlayer"></p>
+<p><a href="http://smplayer.sourceforge.net">SMPlayer</a> es tranquilamente uno de los mejores reproductores de video para Windows.
+Incluye codecs de serie, soporta subtítulos, múltiples pistas de audio o menús de
+DVD, etc...</p>
+<p>Sin embargo, con la configuración que viene por defecto, no funciona ninguno
+de los controles del ecualizador.</p>
+<p>Cambiar la salida de video de Direct3D a OpenGL funciona, pero desactiva Aero.
+La forma de tener ambos a la vez es marcar esa casilla que reza: "Software equalizer".
+No he notado pérdida de rendimiento alguna tras marcarla.</p>
+<h2>Racket - no se puede copiar/pegar código en la consola interactiva</h2>
+<p><img src="/static/4.png" alt="Racket"></p>
+<p>Tenía que incluír una sobre programación.</p>
+<p>Por algún motivo, <a href="http://racket-lang.org">Racket</a> no lee correctamente código que se haya pegado directamente
+en su consola interactiva. Insiste en añadir carácteres como "m" y "R" al código. De
+hecho lo peor es que a menudo parece funcionar y luego se rompe en el momento más
+inesperado.</p>
+<p>Este bug ya ocurría cuando Racket aún se llamaba mzscheme.</p>
+<h2>7-zip - menú contextual</h2>
+<p><img class="align-left" src="/static/5.png" alt="7-zip"></p>
+<p>¿Necesito decir más? Es un ejemplo perfecto de "una imagen vale más que mil palabras".</p>
+<p>El menú contextual integrado con el explorador de Windows que ofrece <a href="http://www.7-zip.org">7-zip</a> es útil
+pero la configuración por defecto es ridícula.</p>
+<p>Un elemento tiene submenú: "Open Archive", mientras que el resto de elementos no
+y simplemente aparecen repetidos, con ligeras variaciones según lo que hacen. Ni
+siquiera están ordenados según su función.</p>
+<p>En mi opinión, un diseño más lógico sería algo tipo: "Open, Add, Compress, Extract,
+Test" todos con submenú y dentro de cada uno las opciones particulares específicas
+para cada elemento.</p>
+<h2>Paint .NET - control de zoom</h2>
+<p><img src="/static/6.png" alt="Paint .NET"></p>
+<p>Una cosa que me gusta de la interfaz de <a href="http://www.getpaint.net">Paint.NET</a> es que sus desplegables incluyen
+las opciones más comunes, pero al mismo tiempo permiten escribir para poder elegir
+valores más concretos.</p>
+<p>En el caso del zoom, aparecen valores como 33%, 50%, 66%, 100%, 200%, etc...
+Supongamos que quiero 120%, como en la imagen. Mi primer ímpetu es escribir el número
+y pulsar enter para aplicar los cambios. Ésto funciona perfectamente y el nuevo zoom
+se aplica, excepto que cualquier seleccion actual en la imagen se pierde nada más
+pulsar la tecla.</p>
+<p>El modo de aplicar un zoom específico pero manteniendo cualquier selección implica
+escribir el número y después hacer click en otra parte de la interfaz, sin pulsar enter,
+para cambiar el foco del control activo. Ésto no es suficientemente intuitivo.</p>
+<h2>Dropbox - un instalador poco educado</h2>
+<p>Aquí no hay foto. El instalador que usa <a href="http://www.dropbox.com">Dropbox</a> decide por su cuenta que es buena
+idea matar el proceso "explorer.exe" (el explorador de Windows), para asegurarse de
+poder activar su integración.</p>
+<p>El problema de hacer ésto es que cualquier operación con el explorador en ese momento
+se interrumpe sin más. ¿Estabas moviendo 40 GB? pues ánimo, ahora tienes parte de los
+archivos en el origen y parte en el destino, apáñate.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/mas-detalles-que-importan/">permalink</a> |
+            <a href="/post/mas-detalles-que-importan/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Respuesta inmediata con múltiples hilos
 </div>
 

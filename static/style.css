@@ -104,6 +104,10 @@ a {
     list-style-type: disc;
 }
 
+.content li p {
+    font-size: 1em;
+}
+
 .content h2 {
     color: #666;
     font-size: 1em;
