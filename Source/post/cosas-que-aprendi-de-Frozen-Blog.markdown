@@ -101,7 +101,7 @@ online como [BrowserStack][] o los [validadores de HTML y CSS][] de la W3C.
 
 ## Conclusiones
 
-Estoy satisfecho con el resultado y sobretodo con las librerías que he usado
+Estoy satisfecho con el resultado y sobre todo con las librerías que he usado
 para llegar a él. Flask y Jinja 2 son excelentes. Todo lo que hace
 [Armin Ronacher][] suele serlo.
 
