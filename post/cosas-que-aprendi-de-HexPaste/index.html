@@ -1,0 +1,143 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Beluki</title>
+        <link rel="stylesheet" href="/static/style.css" type="text/css">
+        <link rel="stylesheet" href="/static/codehilite.css" type="text/css">
+    </head>
+
+    <body>
+        <div class="top-bar">
+            <ul>
+                <li> <a href="/">índice</a> </li>
+                <li> <a href="/archive/">archivo</a> </li>
+                <li> <a href="/page/about/">acerca de</a> </li>
+            </ul>
+        </div>
+        <div class="wrapper">
+            
+    
+
+
+<div class="title">
+    Cosas que aprendí de... HexPaste
+</div>
+
+<div class="subtitle">
+    enero 08, 2015
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Siempre me ha gustado la literatura, especialmente la poesía. Por eso, a veces
+comparto aquí las cosillas que voy escribiendo. También por eso, el primer
+canal de IRC al que entré hace años era de poesía: #poesia en IRC-Hispano.</p>
+<p>Aunque ahora es muy diferente, por aquel entonces el canal era un pequeño y
+acogedor grupo de amigos compartiendo poemas. Lorca, Miguel Hernández, Rafael
+De León... un poco de todo. De todo esto hace unos 12 años.</p>
+<p>Lo primero que aprendí es que copiar y pegar un poema a mano no es práctico.
+La mayoría de usuarios (yo incluído) usábamos un comando de <a href="http://www.mirc.com">mIRC</a> que se
+llama /play para recitar.</p>
+<p>Tiene esta pinta:</p>
+<p><img src="/static/10.png" alt="play"></p>
+<p>Lo más útil es que permite especificar un retardo entre líneas de modo que el
+poema vaya apareciendo poco a poco y sea cómodo de leer. Así fue como recité
+durante años, hasta que llegó un momento en el que quise probar linux y otros
+sistemas operativos.</p>
+<h2>XChat</h2>
+<p>Lo más parecido a mIRC para linux es <a href="http://xchat.org">XChat</a>. XChat está bien pero no tiene
+nada que se parezca al comando /play, así que sin un plugin para poder recitar
+volví a tener que recitar los poemas a mano.</p>
+<p>Aunque por aquel entonces tampoco tenía mucha idea de programación, decidí intentar
+hacer mi propio plugin para XChat que me permitiese recitar poemas en el canal.
+Este fue el origen de HexPaste, que es quizá el programa más antiguo (al menos
+sus raíces) de todos los que tengo actualmente en Github.</p>
+<p>En su momento, escribí ese plugin en <a href="https://www.perl.org">Perl</a> y era extremadamente limitado.
+Por no poder no podías ni cambiar de pestaña durante un recitado porque siempre
+pegaba el texto a la pestaña actualmente activa.</p>
+<h2>HexChat y HexPaste</h2>
+<p>Tras unos cuantos años un poco alejado del canal y sus quehaceres, al final volví.
+Supongo que el gusanillo de la poesía está siempre ahí. XChat es ahora un proyecto
+fantasma (su última actualización es de hace 5 años) y lo que se lleva es <a href="http://hexchat.github.io">HexChat</a>.</p>
+<p>Con más conocimientos, decidí reescribir aquel plugin que había hecho en Perl pero
+en Python, mucho más robusto y práctico que antaño. Esta vez, añadiría cosas como
+poder recitar en múltiples canales a la vez o que sustituyese líneas en blanco en
+un archivo por espacios.</p>
+<p><a href="https://github.com/Beluki/HexPaste">HexPaste</a> es en realidad un programa muy simple. Son unas 350 líneas de código
+escritas en Python 3. No hubo grandes problemas durante su desarrollo en cuestión
+de arquitectura porque tenía bastante claro lo que buscaba.</p>
+<p>El mayor problema fue la <a href="http://hexchat.readthedocs.org/en/latest/script_python.html">API para Python de HexChat</a>. Esta API es poco más que
+la API de C pero expuesta a Python, sin ningún tipo de ayuda o intención por hacerla
+más idiomática a lo que un programador de Python esperaría:</p>
+<ul>
+<li>
+<p>Muchos campos son bitfields.</p>
+</li>
+<li>
+<p>Un "contexto" (canal, query) del tipo que <a href="http://hexchat.readthedocs.org/en/latest/script_python.html#hexchat.get_context">hexchat.get_context()</a> devuelve
+  no es "hashable" y no se puede usar como clave en un diccionario de Python.</p>
+</li>
+<li>
+<p>Muchas veces HexChat se come las excepciones, sin mostrar mensaje de error alguno.</p>
+</li>
+<li>
+<p>Como se usan timers en lugar de threads es extremadamente fácil hacer que HexChat
+  pete completamente debido a un bug y tengas que reabrirlo.</p>
+</li>
+</ul>
+<p>Tengo la teoría de que es esta API la culpable de que la mayoría de plugins para
+HexChat (y antes XChat) sean juguetes comparados con los que existen para mIRC
+y otros clientes de IRC.</p>
+<p>Por lo demás, tacos mediante, HexPaste fue más o menos fácil de crear. Y fácil
+de portar de Python 2 a Python 3. Es uno de los proyectos que más he usado de
+los que he hecho.</p>
+<h2>Conclusiones</h2>
+<p>Creo que la lección más importante que he aprendido de HexPaste es que la necesidad
+es una buena compañera de proyectos.</p>
+<p>Muchos programas parten de ideas interesantes a explorar, donde hay que hacer una
+mayor labor de diseño que de programación. Este parte de necesitar algo que no existe
+para aliviar la incomodidad de copiar/pegar a mano. Hay pocas satisfacciones mejores
+que usar diaramente algo que has creado tú.</p>
+<p>Repositorios en Github: <a href="https://github.com/Beluki/HexPaste">HexPaste</a></p>
+</div>
+
+    
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    (function() {
+        var disqus = document.createElement('script');
+
+        disqus.type = 'text/javascript';
+        disqus.async = true;
+        disqus.src = '//beluki.disqus.com/embed.js';
+
+        (document.getElementsByTagName('head')[0] ||
+         document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+</script>
+
+<noscript>
+    <div class="content">
+        <p> (no se pueden mostrar los comentarios, Javascript está desactivado) </p>
+    </div>
+</noscript>
+
+
+        </div>
+    </body>
+</html>
