@@ -25,7 +25,7 @@ detallando todo el proceso. Aún así, alguna que otra cosa sí puedo contar...
 ## Python y múltiples hilos
 
 A cualquiera que conozca Python un poco, le extrañará que lo haya escogido para
-crear MultiHash. Un estigma comunmente asociado a Python es que su soporte para
+crear MultiHash. Un estigma comúnmente asociado a Python es que su soporte para
 threads es horrible debido al [GIL][].
 
 Yo no estoy de acuerdo.
