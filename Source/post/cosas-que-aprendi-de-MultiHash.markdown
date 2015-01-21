@@ -97,7 +97,7 @@ usar [multiprocessing][], que usa subprocesos en lugar de threads.
 ## Texto o binario
 
 Cuando se abre un archivo, se puede abrir en modo texto o en modo binario.
-Increíblemente, md5sum, sha1sum, etc... abren sus archivos en modo binario
+Increíblemente, md5sum, sha1sum, etc... abren sus archivos en modo texto
 por defecto.
 
 Linux (y en general Unix), no distingue entre archivos de texto y binario,
