@@ -14,7 +14,7 @@ es utilizar el mismo número que procesadores hay en el sistema.
 
 Este post será corto porque la parte más interesante, de la que más aprendí,
 es sin duda el threadpool y ya hice en su día [un post][] sobre ello,
-detallando todo el proceso. Aún así, alguna cosa que otra sí puedo contar...
+detallando todo el proceso. Aún así, alguna que otra cosa sí puedo contar...
 
 [md5sum]: http://www.gnu.org/software/coreutils/manual/html_node/md5sum-invocation.html#md5sum-invocation
 [sha1sum]: http://www.gnu.org/software/coreutils/manual/html_node/sha1sum-invocation.html#sha1sum-invocation
@@ -119,11 +119,11 @@ no había una herramienta que me permitiese pegar poemas poco a poco en IRC.
 
 MultiHash sin embargo, nació de una idea muy simple: "¿Y si calculamos todos los
 algoritmos a la vez?". La intención es aplicarlo a cosas como las [ISOs de Debian][]
-o otras distribuciones, que siempre incluyen todos los checksum.
+u otras distribuciones, que siempre incluyen todos los checksum.
 
 Ha sido también mi primera experiencia creando un programa multihilo y la verdad
 es que no me puedo quejar, ha sido divertido. Es un poco trampa, porque dado que
-todos los hilos son completamente independientes entre si, no me he tenido que
+todos los hilos son completamente independientes entre sí, no me he tenido que
 pegar con mutex y las cosas realmente complicadas.
 
 Repositorios en Github: [MultiHash][]
