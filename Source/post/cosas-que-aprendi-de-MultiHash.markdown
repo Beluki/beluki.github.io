@@ -74,7 +74,7 @@ la librería que MultiHash usa para calcular los algoritmos, encuentra:
 
 Todos los algoritmos usan ENTER_HASHLIB() para saltarse el GIL antes de
 empezar sus cálculos, así que es perfectamente viable usar threads. El
-rendimiento de MultiHash escala perfectamente a tantos procesadores como
+rendimiento de MultiHash escala sin problemas a tantos procesadores como
 haya en el sistema.
 
 Además, según mi experiencia, hay dos tipos de programas:
@@ -115,7 +115,7 @@ coreutils, su salida añade un asterisco '*' antes del nombre de cada fichero.
 ## Conclusiones
 
 En el último postmortem escribía que HexPaste fue creado por necesidad, porque
-no había una herramienta que me permitiese pegar poemas poco a poco en IRC.
+no había una herramienta que me permitiese pegar poemas línea a línea en IRC.
 
 MultiHash sin embargo, nació de una idea muy simple: "¿Y si calculamos todos los
 algoritmos a la vez?". La intención es aplicarlo a cosas como las [ISOs de Debian][]
