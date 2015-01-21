@@ -30,6 +30,64 @@
 
 
 <div class="title">
+    ExitProcess
+</div>
+
+<div class="subtitle">
+    septiembre 22, 2013
+
+    <div class="multilink">
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>El caso es que estos últimos días he estado dándole vueltas a una idea
+interesante para programar un juego, de modo que hoy he estado revisando
+<a href="https://github.com/Beluki/4k">4k</a> y <a href="https://github.com/Beluki/4kGL">4kGL</a>, pensando en la posibilidad de usar uno de ellos como
+punto de partida.</p>
+<p>La idea me gusta lo bastante para haber decidido implementarlo de forma
+portable. Probablemente usaré C++ con <a href="http://www.libsdl.org">SDL</a> o <a href="http://haxe.org">Haxe</a>, así que el tema
+de hacerlo sobre la API de Windows queda descartado.</p>
+<p>Sin embargo, durante el repaso he visto una cosa que no recordaba
+y que me ha llamado la atención. El código relevante es el siguiente:</p>
+<div class="codehilite"><pre><span class="kt">void</span>
+<span class="nf">Shutdown</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">uExitCode</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+
+    <span class="c1">// without WinMainCRTStartup() we must exit the process ourselves:</span>
+    <span class="n">ExitProcess</span><span class="p">(</span><span class="n">uExitCode</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>¿Uh? ¿Por qué se llama manualmente a <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms682658%28v=vs.85%29.aspx">ExitProcess</a>?</p>
+<p>4k y 4kGL están pensados para ser usados sin librería de C. En un programa
+normal que sí usa libc, el punto de entrada real no es "WinMain", sino
+"WinMainCRTStartup", que se encarga de ejecutar primero WinMain
+y luego ExitProcess.</p>
+<p>La pregunta se reduce entonces a: ¿Por qué hace falta llamar a ExitProcess?
+La respuesta está en la siguiente imagen, tomada de <a href="http://technet.microsoft.com/en-us/sysinternals/bb896653.aspx">Process Explorer</a>:</p>
+<p><img src="/static/7.png" alt="Process Explorer"></p>
+<p>Un proceso de Windows no se termina hasta que <a href="http://blogs.msdn.com/b/oldnewthing/archive/2010/08/27/10054832.aspx">todos sus hilos terminan</a>.
+4kGL en realidad no usa uno, sino dos hilos. El segundo procede del driver
+de ATI y se lanza de manera automática al utilizar OpenGL.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/exitprocess/">permalink</a> |
+            <a href="/post/exitprocess/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cómo no aprender a programar
 </div>
 

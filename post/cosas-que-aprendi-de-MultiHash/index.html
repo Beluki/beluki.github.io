@@ -1,0 +1,169 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Beluki</title>
+        <link rel="stylesheet" href="/static/style.css" type="text/css">
+        <link rel="stylesheet" href="/static/codehilite.css" type="text/css">
+    </head>
+
+    <body>
+        <div class="top-bar">
+            <ul>
+                <li> <a href="/">índice</a> </li>
+                <li> <a href="/archive/">archivo</a> </li>
+                <li> <a href="/page/about/">acerca de</a> </li>
+            </ul>
+        </div>
+        <div class="wrapper">
+            
+    
+
+
+<div class="title">
+    Cosas que aprendí de... MultiHash
+</div>
+
+<div class="subtitle">
+    enero 21, 2015
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>MultiHash es un pequeño programa escrito en Python que calcula algoritmos
+como md5, sha1, sha256 etc... al estilo de <a href="http://www.gnu.org/software/coreutils/manual/html_node/md5sum-invocation.html#md5sum-invocation">md5sum</a> o <a href="http://www.gnu.org/software/coreutils/manual/html_node/sha1sum-invocation.html#sha1sum-invocation">sha1sum</a>
+de <a href="http://www.gnu.org/software/coreutils">coreutils</a>.</p>
+<p>Su principal baza es que puede calcular múltiples algoritmos (de ahí el nombre)
+leyendo cada archivo una sola vez. Además, puede dividir el trabajo en hilos,
+donde cada hilo lee y calcula los algoritmos para un archivo. Es posible
+ejecutar tantos hilos como se desee de manera concurrente, aunque lo usual
+es utilizar el mismo número que procesadores hay en el sistema.</p>
+<p>Este post será corto porque la parte más interesante, de la que más aprendí,
+es sin duda el threadpool y ya hice en su día <a href="http://beluki.github.io/post/respuesta-inmediata-con-multiples-hilos/">un post</a> sobre ello,
+detallando todo el proceso. Aún así, alguna cosa que otra sí puedo contar...</p>
+<h2>Python y múltiples hilos</h2>
+<p>A cualquiera que conozca Python un poco, le extrañará que lo haya escogido para
+crear MultiHash. Un estigma comunmente asociado a Python es que su soporte para
+threads es horrible debido al <a href="https://en.wikipedia.org/wiki/Global_Interpreter_Lock">GIL</a>.</p>
+<p>Yo no estoy de acuerdo.</p>
+<p>El GIL o "Global Interpreter Lock" es un mecanismo que solo permite ejecutar
+código Python (bytecode) en un thread a la vez. Es imposible aprovechar
+múltiples procesadores con código Python puro.</p>
+<p>La palabra importante es "puro". Las extensiones escritas en C (o en <a href="http://cython.org">Cython</a>)
+pueden saltarse esta limitación, permitiendo usar tantos threads como sea
+necesario. Si uno mira el código de <a href="https://hg.python.org/cpython/file/tip/Modules/hashlib.h">hashlib.h</a>, la cabecera principal de
+la librería que MultiHash usa para calcular los algoritmos, encuentra:</p>
+<div class="codehilite"><pre><span class="cm">/*</span>
+<span class="cm"> * Helper code to synchronize access to the hash object when the GIL is</span>
+<span class="cm"> * released around a CPU consuming hashlib operation. All code paths that</span>
+<span class="cm"> * access a mutable part of obj must be enclosed in a ENTER_HASHLIB /</span>
+<span class="cm"> * LEAVE_HASHLIB block or explicitly acquire and release the lock inside</span>
+<span class="cm"> * a PY_BEGIN / END_ALLOW_THREADS block if they wish to release the GIL for</span>
+<span class="cm"> * an operation.</span>
+<span class="cm"> */</span>
+
+<span class="cp">#ifdef WITH_THREAD</span>
+<span class="cp">#include &quot;pythread.h&quot;</span>
+    <span class="cp">#define ENTER_HASHLIB(obj) \</span>
+<span class="cp">        if ((obj)-&gt;lock) { \</span>
+<span class="cp">            if (!PyThread_acquire_lock((obj)-&gt;lock, 0)) { \</span>
+<span class="cp">                Py_BEGIN_ALLOW_THREADS \</span>
+<span class="cp">                PyThread_acquire_lock((obj)-&gt;lock, 1); \</span>
+<span class="cp">                Py_END_ALLOW_THREADS \</span>
+<span class="cp">            } \</span>
+<span class="cp">        }</span>
+    <span class="cp">#define LEAVE_HASHLIB(obj) \</span>
+<span class="cp">        if ((obj)-&gt;lock) { \</span>
+<span class="cp">            PyThread_release_lock((obj)-&gt;lock); \</span>
+<span class="cp">        }</span>
+<span class="cp">#else</span>
+    <span class="cp">#define ENTER_HASHLIB(obj)</span>
+    <span class="cp">#define LEAVE_HASHLIB(obj)</span>
+<span class="cp">#endif</span>
+</pre></div>
+
+
+<p>Todos los algoritmos usan ENTER_HASHLIB() para saltarse el GIL antes de
+empezar sus cálculos, así que es perfectamente viable usar threads. El
+rendimiento de MultiHash escala perfectamente a tantos procesadores como
+haya en el sistema.</p>
+<p>Además, según mi experiencia, hay dos tipos de programas:</p>
+<ul>
+<li>
+<p>Aquellos en los que el rendimiento "no importa", porque están limitados
+  por otros factores, como la velocidad de transmisión de datos en un socket.
+  Un ejemplo de esto es un cliente de IRC o el comando "ping". En estos casos
+  el rendimiento de Python es más que suficiente.</p>
+</li>
+<li>
+<p>Aquellos en los que hasta el último segundo importa, como un raytracer o
+  procesamiento de imágenes. En estos casos, con o sin GIL, Python nunca te
+  daría una velocidad aceptable, así que no queda otra que escribir la parte
+  importante en un lenguaje como C.</p>
+</li>
+</ul>
+<p>Aún así, sí existen modos de saltarse el GIL con código Python puro, como
+usar <a href="https://docs.python.org/3/library/multiprocessing.html">multiprocessing</a>, que usa subprocesos en lugar de threads.</p>
+<h2>Texto o binario</h2>
+<p>Cuando se abre un archivo, se puede abrir en modo texto o en modo binario.
+Increíblemente, md5sum, sha1sum, etc... abren sus archivos en modo binario
+por defecto.</p>
+<p>Linux (y en general Unix), no distingue entre archivos de texto y binario,
+pero Windows sí y el resultado de un checksum es diferente. Esto ha llevado
+a <a href="http://lists.gnu.org/archive/html/bug-coreutils/2009-03/msg00376.html">problemas de compatibilidad</a> en sistemas como <a href="http://cygwin.com">Cygwin</a> (o en ports
+de md5sum a Windows).</p>
+<p>MultiHash siempre lee los archivos en modo binario, que es lo único que tiene
+sentido para calcular hashes. Por compatibilidad con las herramientas de
+coreutils, su salida añade un asterisco '*' antes del nombre de cada fichero.</p>
+<h2>Conclusiones</h2>
+<p>En el último postmortem escribía que HexPaste fue creado por necesidad, porque
+no había una herramienta que me permitiese pegar poemas poco a poco en IRC.</p>
+<p>MultiHash sin embargo, nació de una idea muy simple: "¿Y si calculamos todos los
+algoritmos a la vez?". La intención es aplicarlo a cosas como las <a href="http://cdimage.debian.org/debian-cd/7.8.0/i386/iso-cd/">ISOs de Debian</a>
+o otras distribuciones, que siempre incluyen todos los checksum.</p>
+<p>Ha sido también mi primera experiencia creando un programa multihilo y la verdad
+es que no me puedo quejar, ha sido divertido. Es un poco trampa, porque dado que
+todos los hilos son completamente independientes entre si, no me he tenido que
+pegar con mutex y las cosas realmente complicadas.</p>
+<p>Repositorios en Github: <a href="https://github.com/Beluki/MultiHash">MultiHash</a></p>
+</div>
+
+    
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    (function() {
+        var disqus = document.createElement('script');
+
+        disqus.type = 'text/javascript';
+        disqus.async = true;
+        disqus.src = '//beluki.disqus.com/embed.js';
+
+        (document.getElementsByTagName('head')[0] ||
+         document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+</script>
+
+<noscript>
+    <div class="content">
+        <p> (no se pueden mostrar los comentarios, Javascript está desactivado) </p>
+    </div>
+</noscript>
+
+
+        </div>
+    </body>
+</html>
