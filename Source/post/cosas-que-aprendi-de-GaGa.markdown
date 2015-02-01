@@ -53,7 +53,7 @@ Y este fue el resultado:
 [NotifyIconPlayer]: https://github.com/Beluki/GaGa/tree/master/Source/GaGa/NotifyIconPlayer
 [StreamsFile]: https://github.com/Beluki/GaGa/tree/master/Source/GaGa/StreamsFile
 
-Finalmente, GaGa (GaGa.cs y GaGaSettings.cs) solo implementa el menú y lá
+Finalmente, GaGa (GaGa.cs y GaGaSettings.cs) solo implementa el menú y la
 lógica de los eventos que se derivan de él, como reproducir una radio al hacer
 click en el stream correspondiente. Sirve para unir todo lo anterior.
 
