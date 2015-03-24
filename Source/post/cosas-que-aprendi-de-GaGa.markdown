@@ -90,8 +90,8 @@ posible, dado que no hay estructuras de datos intermedias.
 Escribí mINI en un fin de semana y la verdad es que estoy contento con el
 resultado. Es simple, práctico, funciona.
 
-[LowKey][] es mucho más complicado. Es una librería que responder a pulsaciones
-de teclas desde cualquier aplicación, utilizando [hooks][] a bajo nivel.
+[LowKey][] es mucho más complicado. Es una librería que responde a pulsaciones
+de teclas desde cualquier aplicación utilizando [hooks][] a bajo nivel.
 Aunque su código es relativamente corto, hay partes en las que es fácil
 cometer un error.
 
