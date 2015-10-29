@@ -30,6 +30,120 @@
 
 
 <div class="title">
+    Cosas que aprendí de... Frozen-Blog
+</div>
+
+<div class="subtitle">
+    diciembre 22, 2014
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Cuando empecé con esto de crear proyectos y compartirlos online, pensaba
+que una vez tuviese suficientes, crearía un blog donde ir contando mis
+progresos. Las cosas que salieron bien, las que no tan bien, decisiones
+de diseño, pequeños detalles interesantes...</p>
+<p>Una vez llegó el momento, no tenía muy claro qué hacer. Sabía que quería algo
+simple, que no necesite una base de datos aparte (como <a href="https://wordpress.org">Wordpress</a>) e
+independiente de servicios online concretos (como <a href="https://www.blogger.com">Blogger</a>).</p>
+<h2>Github y Jekyll</h2>
+<p>Afortunadamente, pronto encontré una alternativa. Entre las muchas cosas
+que ofrece Github, está <a href="https://help.github.com/articles/using-jekyll-with-pages">Jekyll</a>: un generador de blogs estáticos.
+El resultado (el HTML que Jekyll genera) puede alojarse en el propio Github.</p>
+<p>Como no es oro todo lo que reluce... tampoco tardé en encontrar problemas:</p>
+<ul>
+<li>
+<p>Pésimo soporte para Windows. Ha habido ocasiones en que Jekyll ha estado
+  meses sin funcionar por culpa de algún bug en las librerías que usa.
+  A día de hoy Windows ni siquiera está soportado oficialmente.</p>
+</li>
+<li>
+<p>El sistema de plantillas: <a href="http://liquidmarkup.org">Liquid</a> es extremadamente limitado.
+  Hasta Jekyll 2.2.0 era imposible ordenar las categorías alfabéticamente.</p>
+</li>
+<li>
+<p>En modo interactivo, Jekyll regenera la web entera con cada cambio.
+  En cuanto tienes un número de posts considerable (digamos 200) esto
+  es muy lento e ineficiente.</p>
+</li>
+<li>
+<p>Aunque Jekyll está escrito en Ruby, depende de Python y Pygments para tener
+  sintaxis de colores decente. Con el tiempo, se añadió soporte para <a href="https://github.com/jneen/rouge">Rouge</a>,
+  que soporta menos lenguajes, pero no necesita Python.</p>
+</li>
+</ul>
+<p>Tras descartar Jekyll, me puse a buscar otros generadores parecidos. Recuerdo
+que probé unos diez. Muchos tenían serias limitaciones o eran demasiado
+complicados. Aunque había alguno prometedor (por ejemplo <a href="https://github.com/getpelican/pelican">Pelican</a>) decidí
+crear uno propio. Lo que no sabía es que terminaría escribiendo no uno, sino
+cuatro generadores distintos, cada uno con sus ventajas y desventajas.</p>
+<h2>Frozen-Flask</h2>
+<p>Lo que me llevó a crear Frozen-Blog, fue un post de <a href="https://nicolas.perriault.net/code/2012/dead-easy-yet-powerful-static-website-generator-with-flask/">Nicolas Perriault</a> en el
+que utiliza <a href="http://flask.pocoo.org">Flask</a> y <a href="https://github.com/SimonSapin/Frozen-Flask">Frozen-Flask</a> para generar un blog simple.
+El código completo son unas 35 líneas de Python.</p>
+<p>Pensé: ¿Y si generalizamos esta idea? ¿Y si le añado todo lo que se espera de
+un generador estático? No tardé en añadir categorías (múltiples por post),
+paginación, soporte para sintaxis de colores, configuración externa y todo lo
+que fui necesitando.</p>
+<p>Pronto me di cuenta de que <a href="https://github.com/SimonSapin/Flask-FlatPages">Flask-FlatPages</a> era un tanto limitado.
+En particular, está ligado a Flask. Es imposible crear múltiples instancias
+en una sola aplicación. Por eso creé también <a href="https://github.com/Beluki/MetaFiles">MetaFiles</a>, un fork de
+Flask-FlatPages que es independiente de Flask, Jinja2 o cualquier librería
+externa y que usé en Frozen-Blog tanto para posts como para páginas.</p>
+<p>Una curiosidad sobre Flask es que sus archivos de configuración no son JSON
+o INI, sino código Python. En Frozen-Blog aprovecho esto para poder hacer
+cosas como la siguiente:</p>
+<div class="codehilite"><pre><span class="c"># cambia el formato de fecha/hora a castellano en todo el blog:</span>
+<span class="kn">import</span> <span class="nn">locale</span>
+<span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s">&#39;spanish&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>HTML y CSS</h2>
+<p>Con el generador listo, solo faltaba un tema simple y elegante para presentar
+el blog. Creo que puedo decir sin miedo a equivocarme que esta fue la parte
+más difícil de todo el proyecto.</p>
+<p>HTML5 y CSS3 son relativamente simples, pero cada navegador tiene la manía
+de interpretarlos de modo diferente. El tema que escribí para Frozen-Blog
+funciona en cualquier navegador, hasta en IE6 o en navegadores de texto
+para consola (como lynx). También permite hacer zoom correctamente sin
+deformar la maquetación del contenido.</p>
+<p>La lección más importante en este sentido fue que es imposible testear en
+suficientes entornos sin máquinas virtuales o sin hacer uso de herramientas
+online como <a href="http://www.browserstack.com">BrowserStack</a> o los <a href="http://validator.w3.org">validadores de HTML y CSS</a> de la W3C.</p>
+<h2>Conclusiones</h2>
+<p>Estoy satisfecho con el resultado y sobre todo con las librerías que he usado
+para llegar a él. Flask y Jinja 2 son excelentes. Todo lo que hace
+<a href="http://lucumr.pocoo.org">Armin Ronacher</a> suele serlo.</p>
+<p>Por poner un "pero": este proyecto me hace darme cuenta de lo complicadas
+que son la mayoría de páginas web o blogs que hay por ahí. La gente se
+sorprende cuando abre un blog y tarda menos de 1 segundo en cargar. Yo opino
+que esto debería ser la norma y no la excepción. ¿Cuánto de todo lo que ha
+cargado es contenido? ¿Cuánto es realmente necesario?</p>
+<p>Repositorios en Github: <a href="https://github.com/Beluki/Frozen-Blog">Frozen-Blog</a> - <a href="https://github.com/Beluki/MetaFiles">MetaFiles</a></p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/cosas-que-aprendi-de-Frozen-Blog/">permalink</a> |
+            <a href="/post/cosas-que-aprendi-de-Frozen-Blog/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cosas que aprendí de... EmbedDIBits
 </div>
 
@@ -413,39 +527,6 @@ las referencias a cuentos infantiles que hay en el poema? Por ejemplo:
         <div class="multilink">
             <a href="/post/cine-mudo/">permalink</a> |
             <a href="/post/cine-mudo/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    The shocking Miss Emerald
-</div>
-
-<div class="subtitle">
-    octubre 19, 2013
-
-    <div class="multilink">
-        
-            <a href="/archive/musica/">música</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p><img src="/static/8.png" alt="cover"></p>
-<p>Hacía tiempo que un grupo (o un artista) no me enganchaba tanto. Si no
-has escuchado ya algo de Caro, estás <a href="http://www.youtube.com/watch?v=6QUmPZmkr4I">tardando</a> en hacerlo. Qué voz.
-Aún no tengo claro si es jazz, tango, swing o qué, pero el caso es
-que la mezcla funciona a la perfección.</p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/the-shocking-miss-emerald/">permalink</a> |
-            <a href="/post/the-shocking-miss-emerald/#disqus_thread">comentarios</a>
         </div>
     
 
