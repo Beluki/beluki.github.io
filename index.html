@@ -30,6 +30,158 @@
 
 
 <div class="title">
+    Cosas que aprendí de... dir
+</div>
+
+<div class="subtitle">
+    diciembre 15, 2015
+
+    <div class="multilink">
+        
+            <a href="/archive/lua/">lua</a>
+
+             | 
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p><a href="https://github.com/Beluki/dir">dir</a> es un videojuego multiplataforma escrito en <a href="http://www.lua.org">Lua</a> que utiliza el
+framework <a href="https://love2d.org">Löve2D</a>. El estilo de juego es parecido a Bejeweled o Tetris:
+juntar piezas de un mismo color para que desaparezcan.</p>
+<p>Es también mi intento de diseñar un juego que resulte atractivo a audiencias
+casuales y hardcore, sin depender de límites de tiempo o reflejos rápidos.</p>
+<p>Tiene esta pinta:</p>
+<p><img src="/static/15.png" alt="dir"></p>
+<p>Si quieres descargarlo y echar una partida antes de continuar leyendo
+<a href="https://github.com/Beluki/dir/releases">haz click aquí</a>.</p>
+<h2>Características</h2>
+<p><a href="https://github.com/Beluki/dir">dir</a> podría definirse tanto por las cosas que sí tiene:</p>
+<ul>
+<li>Una mecánica original, basada en acumular combos.</li>
+<li>Altamente rejugable. Una partida completa dura entre 5 y 15 minutos.</li>
+<li>Sistema de puntuación y ranking altamente depurado.</li>
+<li>El juego es completamente independiente de la resolución, dado que dibuja
+todas las piezas vectorialmente. Todo en <a href="https://github.com/Beluki/dir">dir</a> es o bien un cuadrado o bien un trozo de texto.</li>
+<li>Tres temas de colores.</li>
+<li>Portable. No utiliza el registro de Windows, ni la carpeta Mis Documentos, etc...</li>
+</ul>
+<p>... como por las que no:</p>
+<ul>
+<li>Una pantalla de título.</li>
+<li>Múltiples niveles de dificultad.</li>
+<li>Múltiples modos de juego.</li>
+<li>Cargar o Guardar partida.</li>
+<li>Sonido o música.</li>
+<li>Límite de puntuación o final.</li>
+<li>Pantalla de "game over".</li>
+</ul>
+<h2>Löve2D</h2>
+<p>Antes de empezar a programar el juego, evalué múltiples frameworks como posibles
+candidatos. Los principales fueron <a href="http://haxe.org">Haxe</a>, <a href="https://love2d.org">Löve2D</a>, <a href="http://www.monogame.net">Monogame</a> y <a href="http://pygame.org/hifi.html">pygame</a>.</p>
+<p>Dos de ellos, Monogame y pygame, los descarté en parte por sus dependencias (<a href="http://www.microsoft.com/net">.NET</a> y <a href="https://www.python.org">Python</a>
+respectivamente) y en parte por <a href="http://stackoverflow.com/questions/23305577/draw-rectangle-in-monogame">complicaciones</a>
+a la hora de hacer tareas que deberían ser realmente simples, como dibujar un cuadrado en pantalla.</p>
+<p>En el caso de Haxe, las incompatibilidades entre la versión web y la versión
+escritorio fueron la principal razón de descartarlo. Basta con echar un ojo
+a la demo de <a href="http://www.joshuagranick.com/2012/02/22/nme-game-example-pirate-pig">PiratePig</a> en el blog de Joshua Granick para darse cuenta de
+las diferencias (compara por ejemplo la versión HTML5 y Flash).</p>
+<p>A día de hoy no sé si puedo decir que Löve fuese el framework "perfecto", pero
+volvería a utilizarlo para programar <a href="https://github.com/Beluki/dir">dir</a>. La <a href="https://love2d.org/wiki/Main_Page">documentación</a>
+es excelente. El <a href="https://love2d.org/forums/">foro</a> también.</p>
+<h2>Lua</h2>
+<p>Utilizar Löve2D implica utilizar Lua.</p>
+<p>Lua es en general un lenguaje muy bien diseñado con alguna que otra pega
+importante, aunque todas las pegas tienen sentido en el contexto donde Lua
+suele utilizarse.</p>
+<p>Por ejemplo: Lua no tiene una librería standard decente, no tiene excepciones,
+no tiene orientación a objetos, no tiene mil cosas que normalmente son necesarias
+cuando no estás programando algo embebido. Löve2D suple en parte la falta de esta
+funcionalidad a base de módulos adicionales como "love.audio", "love.filesystem",
+etc...</p>
+<p>Lua tampoco tiene un modo de distinguir "nil" de "variable no inicializada", lo cual
+me ha causado muchos más dolores de cabeza a la hora de programar dir que cualquier
+módulo aparte que haya tenido que escribir.</p>
+<h2>Arquitectura</h2>
+<p><a href="https://github.com/Beluki/dir">dir</a> está escrito de modo que <a href="https://github.com/Beluki/dir/tree/master/Source">cada parte</a> es lo más independiente posible de todas
+las demás. Cada componente usa además su propia noción de orientación a objetos (closures
+en realidad), con un "self" explícito al estilo Python.</p>
+<p>Por ejemplo, para inicializar el juego:</p>
+<div class="codehilite"><pre><span class="k">function</span> <span class="nf">Game</span> <span class="p">()</span>
+    <span class="kd">local</span> <span class="n">self</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1">-- initialization:</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">init</span> <span class="o">=</span> <span class="k">function</span> <span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">grid_width</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">grid_height</span> <span class="o">=</span> <span class="mi">5</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">hud</span> <span class="o">=</span> <span class="n">Hud</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">Menu</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">screen</span> <span class="o">=</span> <span class="n">Screen</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">theme</span> <span class="o">=</span> <span class="n">Theme</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">resize</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">restart</span><span class="p">()</span>
+    <span class="k">end</span>
+
+    <span class="c1">-- otros &quot;métodos&quot;...</span>
+
+    <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">self</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p>donde <a href="https://github.com/Beluki/dir/blob/master/Source/game/grid.lua">Grid</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/hud.lua">Hud</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/menu.lua">Menu</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/screen.lua">Screen</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/state.lua">State</a> y <a href="https://github.com/Beluki/dir/blob/master/Source/game/theme.lua">Theme</a> son los
+módulos que se combinan para dar forma al juego final.</p>
+<p>A más bajo nivel, cada módulo es responsable de sus propias animaciones.
+Por ejemplo, Grid contiene todas las definiciones necesarias para que las piezas
+del grid que están apareciendo, desapareciendo, moviéndose, etc mantengan su
+estado entre frame y frame.</p>
+<p>Un detalle importante aquí es que en <a href="https://github.com/Beluki/dir">dir</a> solo existe una animación a la vez
+en todo el grid. No es posible tener piezas que se muevan, mientras otras desaparecen
+al mismo tiempo. Esto simplifica mucho la implementación, porque puede hacerse en
+base al concepto de "Tween", donde cada animación se enlaza con la siguiente a través
+de una función puente (ver por ejemplo grid.appearing.oncomplete).</p>
+<p>El hilo conductor final es <a href="https://github.com/Beluki/dir/blob/master/Source/game/state.lua">State</a>, que decide qué hacer en base al ranking y la
+puntuación actuales, cada vez que las piezas cambian de estado.</p>
+<p>Finalmente, en la carpeta <a href="https://github.com/Beluki/dir/tree/master/Source/lib">lib</a> hay dos pequeñas librerías. Una para manipular arrays
+de dos dimensiones y otra con wrappers sobre la funcionalidad básica de Löve2D. Esta última
+es totalmente prescindible, pero hará más fácil portar <a href="https://github.com/Beluki/dir">dir</a> a futuras versiones de Löve
+si este cambia.</p>
+<h2>Conclusiones</h2>
+<p>Estoy muy orgulloso del resultado obtenido con <a href="https://github.com/Beluki/dir">dir</a>. Creo que el resultado ha merecido el
+esfuerzo. El <a href="/post/grandmaster">record</a> actual será además muy difícil de superar.</p>
+<h2>Bonus</h2>
+<p>Aquí puedes ver un vídeo de un usuario del foro de Löve2D jugando a dir:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/B6CJWG67TdE" frameborder="0" allowfullscreen>
+</iframe>
+
+<p>Y un port a Android:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/sUHYoeOMYGU" frameborder="0" allowfullscreen>
+</iframe>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/cosas-que-aprendi-de-dir/">permalink</a> |
+            <a href="/post/cosas-que-aprendi-de-dir/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cosas que aprendí de... MQLite
 </div>
 
@@ -492,134 +644,6 @@ un ordenador. Ha sido un reto interesante.</p>
         <div class="multilink">
             <a href="/post/cosas-que-aprendi-de-GaGa/">permalink</a> |
             <a href="/post/cosas-que-aprendi-de-GaGa/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    Cosas que aprendí de... MultiHash
-</div>
-
-<div class="subtitle">
-    enero 21, 2015
-
-    <div class="multilink">
-        
-            <a href="/archive/postmortem/">postmortem</a>
-
-             | 
-        
-            <a href="/archive/programacion/">programación</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p>MultiHash es un pequeño programa escrito en Python que calcula algoritmos
-como md5, sha1, sha256 etc... al estilo de <a href="http://www.gnu.org/software/coreutils/manual/html_node/md5sum-invocation.html#md5sum-invocation">md5sum</a> o <a href="http://www.gnu.org/software/coreutils/manual/html_node/sha1sum-invocation.html#sha1sum-invocation">sha1sum</a>
-de <a href="http://www.gnu.org/software/coreutils">coreutils</a>.</p>
-<p>Su principal baza es que puede calcular múltiples algoritmos (de ahí el nombre)
-leyendo cada archivo una sola vez. Además, puede dividir el trabajo en hilos,
-donde cada hilo lee y calcula los algoritmos para un archivo. Es posible
-ejecutar tantos hilos como se desee de manera concurrente, aunque lo usual
-es utilizar el mismo número que procesadores hay en el sistema.</p>
-<p>Este post será corto porque la parte más interesante, de la que más aprendí,
-es sin duda el threadpool y ya hice en su día <a href="http://beluki.github.io/post/respuesta-inmediata-con-multiples-hilos/">un post</a> sobre ello,
-detallando todo el proceso. Aún así, alguna que otra cosa sí puedo contar...</p>
-<h2>Python y múltiples hilos</h2>
-<p>A cualquiera que conozca Python un poco, le extrañará que lo haya escogido para
-crear MultiHash. Un estigma comúnmente asociado a Python es que su soporte para
-threads es horrible debido al <a href="https://en.wikipedia.org/wiki/Global_Interpreter_Lock">GIL</a>.</p>
-<p>Yo no estoy de acuerdo.</p>
-<p>El GIL o "Global Interpreter Lock" es un mecanismo que solo permite ejecutar
-código Python (bytecode) en un thread a la vez. Es imposible aprovechar
-múltiples procesadores con código Python puro.</p>
-<p>La palabra importante es "puro". Las extensiones escritas en C (o en <a href="http://cython.org">Cython</a>)
-pueden saltarse esta limitación, permitiendo usar tantos threads como sea
-necesario. Si uno mira el código de <a href="https://hg.python.org/cpython/file/tip/Modules/hashlib.h">hashlib.h</a>, la cabecera principal de
-la librería que MultiHash usa para calcular los algoritmos, encuentra:</p>
-<div class="codehilite"><pre><span class="cm">/*</span>
-<span class="cm"> * Helper code to synchronize access to the hash object when the GIL is</span>
-<span class="cm"> * released around a CPU consuming hashlib operation. All code paths that</span>
-<span class="cm"> * access a mutable part of obj must be enclosed in a ENTER_HASHLIB /</span>
-<span class="cm"> * LEAVE_HASHLIB block or explicitly acquire and release the lock inside</span>
-<span class="cm"> * a PY_BEGIN / END_ALLOW_THREADS block if they wish to release the GIL for</span>
-<span class="cm"> * an operation.</span>
-<span class="cm"> */</span>
-
-<span class="cp">#ifdef WITH_THREAD</span>
-<span class="cp">#include &quot;pythread.h&quot;</span>
-    <span class="cp">#define ENTER_HASHLIB(obj) \</span>
-<span class="cp">        if ((obj)-&gt;lock) { \</span>
-<span class="cp">            if (!PyThread_acquire_lock((obj)-&gt;lock, 0)) { \</span>
-<span class="cp">                Py_BEGIN_ALLOW_THREADS \</span>
-<span class="cp">                PyThread_acquire_lock((obj)-&gt;lock, 1); \</span>
-<span class="cp">                Py_END_ALLOW_THREADS \</span>
-<span class="cp">            } \</span>
-<span class="cp">        }</span>
-    <span class="cp">#define LEAVE_HASHLIB(obj) \</span>
-<span class="cp">        if ((obj)-&gt;lock) { \</span>
-<span class="cp">            PyThread_release_lock((obj)-&gt;lock); \</span>
-<span class="cp">        }</span>
-<span class="cp">#else</span>
-    <span class="cp">#define ENTER_HASHLIB(obj)</span>
-    <span class="cp">#define LEAVE_HASHLIB(obj)</span>
-<span class="cp">#endif</span>
-</pre></div>
-
-
-<p>Todos los algoritmos usan ENTER_HASHLIB() para saltarse el GIL antes de
-empezar sus cálculos, así que es perfectamente viable usar threads. El
-rendimiento de MultiHash escala sin problemas a tantos procesadores como
-haya en el sistema.</p>
-<p>Además, según mi experiencia, hay dos tipos de programas:</p>
-<ul>
-<li>
-<p>Aquellos en los que el rendimiento "no importa", porque están limitados
-  por otros factores, como la velocidad de transmisión de datos en un socket.
-  Un ejemplo de esto es un cliente de IRC o el comando "ping". En estos casos
-  el rendimiento de Python es más que suficiente.</p>
-</li>
-<li>
-<p>Aquellos en los que hasta el último segundo importa, como un raytracer o
-  procesamiento de imágenes. En estos casos, con o sin GIL, Python nunca te
-  daría una velocidad aceptable, así que no queda otra que escribir la parte
-  importante en un lenguaje como C.</p>
-</li>
-</ul>
-<p>Aún así, sí existen modos de saltarse el GIL con código Python puro, como
-usar <a href="https://docs.python.org/3/library/multiprocessing.html">multiprocessing</a>, que usa subprocesos en lugar de threads.</p>
-<h2>Texto o binario</h2>
-<p>Cuando se abre un archivo, se puede abrir en modo texto o en modo binario.
-Increíblemente, md5sum, sha1sum, etc... abren sus archivos en modo texto
-por defecto.</p>
-<p>Linux (y en general Unix), no distingue entre archivos de texto y binario,
-pero Windows sí y el resultado de un checksum es diferente. Esto ha llevado
-a <a href="http://lists.gnu.org/archive/html/bug-coreutils/2009-03/msg00376.html">problemas de compatibilidad</a> en sistemas como <a href="http://cygwin.com">Cygwin</a> (o en ports
-de md5sum a Windows).</p>
-<p>MultiHash siempre lee los archivos en modo binario, que es lo único que tiene
-sentido para calcular hashes. Por compatibilidad con las herramientas de
-coreutils, su salida añade un asterisco '*' antes del nombre de cada fichero.</p>
-<h2>Conclusiones</h2>
-<p>En el último postmortem escribía que HexPaste fue creado por necesidad, porque
-no había una herramienta que me permitiese pegar poemas línea a línea en IRC.</p>
-<p>MultiHash sin embargo, nació de una idea muy simple: "¿Y si calculamos todos los
-algoritmos a la vez?". La intención es aplicarlo a cosas como las <a href="http://cdimage.debian.org/debian-cd/7.8.0/i386/iso-cd/">ISOs de Debian</a>
-u otras distribuciones, que siempre incluyen todos los checksum.</p>
-<p>Ha sido también mi primera experiencia creando un programa multihilo y la verdad
-es que no me puedo quejar, ha sido divertido. Es un poco trampa, porque dado que
-todos los hilos son completamente independientes entre sí, no me he tenido que
-pegar con mutex y las cosas realmente complicadas.</p>
-<p>Repositorios en Github: <a href="https://github.com/Beluki/MultiHash">MultiHash</a></p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/cosas-que-aprendi-de-MultiHash/">permalink</a> |
-            <a href="/post/cosas-que-aprendi-de-MultiHash/#disqus_thread">comentarios</a>
         </div>
     
 
