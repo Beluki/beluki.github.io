@@ -10,7 +10,7 @@ más posts sobre los proyectos que he hecho después de [GaGa][].
 [dir]: https://github.com/Beluki/dir
 [lua]: http://www.lua.org
 [Love2D]: https://love2d.org
-[GaGa]: /post/cosas-que-aprendi-de-GaGa/
+[GaGa]: http://beluki.github.io/post/cosas-que-aprendi-de-GaGa/
 
 Este post va de la que es probablemente la mejor partida que se ha
 jugado en dir hasta el momento. La siguiente screenshot me la envió [mi

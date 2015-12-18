@@ -160,7 +160,7 @@ si este cambia.
 Estoy muy orgulloso del resultado obtenido con [dir][]. Creo que el resultado ha merecido el
 esfuerzo. El [record][] actual será además muy difícil de superar.
 
-[record]: /post/grandmaster
+[record]: http://beluki.github.io/post/grandmaster
 
 ## Bonus
 

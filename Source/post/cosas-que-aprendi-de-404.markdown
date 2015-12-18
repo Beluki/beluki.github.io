@@ -32,7 +32,7 @@ su threadpool y mantener los hilos. Ya [escribí un post][] sobre ello en este b
 vez creado, el resto es cuestión de utilizar [BeautifulSoup][] para leer el HTML y
 [Requests][] para ir acumulando el resto de los enlaces.
 
-[escribí un post]: /post/respuesta-inmediata-con-multiples-hilos/
+[escribí un post]: http://beluki.github.io/post/respuesta-inmediata-con-multiples-hilos/
 [MultiHash]: https://github.com/Beluki/MultiHash
 
 [BeautifulSoup]: http://www.crummy.com/software/BeautifulSoup
