@@ -30,6 +30,104 @@
 
 
 <div class="title">
+    Cosas que aprendí de... EmbedDIBits
+</div>
+
+<div class="subtitle">
+    diciembre 18, 2014
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Aunque tras escribir Sokoban decidí crear un framework, 4k no fue el único
+proyecto que nació como resultado del juego. Durante el desarrollo de 4k,
+empecé dos proyectos más, dos utilidades, ambas escritas en Python.</p>
+<p>La primera de las utilidades se llama EmbedXSB. Traduce niveles de Sokoban
+en formato <a href="http://sokosolve.sourceforge.net/FileFormatXSB.html">XSB</a> a cabeceras de C. Como la cabecera resultado es específica
+para Sokoban 4k (diseñada para ocupar lo menos posible), no llegué nunca
+a limpiar y mejorar el programa y publicarlo en Github. EmbedXSB me permitió
+incluír los 50 niveles originales de Sokoban en Sokoban 4k.</p>
+<p>La segunda se llama <a href="https://github.com/Beluki/EmbedDIBits">EmbedDIBits</a>. Lee imágenes en formato PNG, BMP, JPG...
+y crea cabeceras de C con un array de bytes que contiene el color de cada
+pixel, en formato: 0xAARRGGBB, 32 bits. La idea es poder tomar los sprites
+originales de Sokoban y tenerlos directamente en C, sin ningún tipo de archivo
+intermedio.</p>
+<h2>Python</h2>
+<p>En su momento escribí EmbedXSB y EmbedDIBits en Python 2. EmbedDIBits usaba
+<a href="http://www.pythonware.com/products/pil/">PIL</a> para leer las imágenes. Con el tiempo, porté EmbedDIBits a Python 3
+y cambié de PIL a <a href="http://pillow.readthedocs.org">Pillow</a>, dado que PIL lleva años sin actualizarse y no
+soporta Python 3.</p>
+<p>Mi experiencia con el lenguaje y las librerías es excelente. Cosas como parsear
+opciones de línea de comandos (en plan "--help" o "--option bla") son muy fáciles
+de hacer con argparse. Construcciones como "with open(...)", que cierran
+automáticamente un archivo tras utilizarlo, son prácticas. Portar de Python 2
+a Python 3 fue trivial, aunque también es cierto que EmbedDIBits es un programa
+muy pequeño y simple.</p>
+<p>De quejarme de algo sería de la conversión automática de finales de línea
+dependiendo de la plataforma actual en la que se ejecuta el código:</p>
+<div class="codehilite"><pre><span class="c"># texto\n en Unix</span>
+<span class="c"># texto\r\n en Windows</span>
+<span class="c"># texto\r en Mac OS</span>
+<span class="k">print</span><span class="p">(</span><span class="n">texto</span><span class="p">)</span>
+
+<span class="c"># el final de línea que quieras, pero ha de ser en bytes:</span>
+<span class="n">eol</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">texto</span><span class="p">,</span> <span class="s">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">eol</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Me quejo porque tengo la costumbre de permitir al usuario especificar cualquier
+final de línea que desee ("--newline formato" en EmbedDIBits). Mi opinión es que
+un programa realmente portable debe comportarse igual en todas las plataformas
+y la salida que produce ha ser idéntica y reproducible.</p>
+<h2>Utilidades de consola</h2>
+<p>Quizá la mejor lección que aprendí de EmbedDIBits es a respetar y tener en cuenta
+todo aquello que un usuario experimentado espera del comportamiento de un programa
+de consola. Algunos ejemplos al respecto:</p>
+<ul>
+<li>Usa el programa stdout/stderr correctamente?</li>
+<li>Provee --help? Son el resto de opciones fáciles de entender por su descripción?</li>
+<li>Si produce archivos... puede imprimir su salida también por stdout?</li>
+<li>Puede redirigirse su stdout/stderr fácilmente?</li>
+<li>Está pensado para combinarse con otras herramientas? (por ejemplo: grep)</li>
+<li>Devuelve 0 o otro valor al terminar dependiendo de si ha habido errores?</li>
+<li>Entiende nombres de archivos con espacios? con carácteres UTF-8?</li>
+<li>Si la tarea que ha de realizar es larga: provee feedback adecuado al usuario?</li>
+<li>Tiene alguna opción para suprimir estos mensajes cuando no son necesarios?</li>
+</ul>
+<p>Hay mucho más detrás de lo que parece (para variar) y es fácil olvidarse
+de las cosas. Ahora, cada vez que empiezo un programa nuevo, reviso todo esto
+y me guío por los que ya he hecho para mantener un standard aceptable.</p>
+<h2>Conclusiones</h2>
+<p>Lo que más me llama la atención de todo esto es que un proyecto relativamente
+pequeño, como Sokoban 4k, puede dar lugar al nacimiento de otros 3 proyectos más.</p>
+<p>Este patrón se ha vuelto común en mí. Es además una manera cómoda de testear
+bien mis librerías, programas, etc..., porque cada proyecto depende de otros.
+Al final todos se testean mutuamente.</p>
+<p>Repositorios en Github: <a href="https://github.com/Beluki/EmbedDIBits">EmbedDIBits</a></p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/cosas-que-aprendi-de-EmbedDIBits/">permalink</a> |
+            <a href="/post/cosas-que-aprendi-de-EmbedDIBits/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cosas que aprendí de... 4k
 </div>
 
@@ -348,70 +446,6 @@ que la mezcla funciona a la perfección.</p>
         <div class="multilink">
             <a href="/post/the-shocking-miss-emerald/">permalink</a> |
             <a href="/post/the-shocking-miss-emerald/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    Magia de cerca
-</div>
-
-<div class="subtitle">
-    octubre 17, 2013
-
-    <div class="multilink">
-        
-            <a href="/archive/poesia/">poesía</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <pre class="poetry">
-    Me dijo: tú mira, mira,
-    Yo vaya que si miraba,
-    los naipes sobre la mesa
-    y nada bajo las mangas.
-
-    Un truco te quiero hacer,
-    tú memoriza una carta,
-    el dos de copas, pensé,
-    ni los bastos ni la espada.
-
-    ¿Y los oros no te gustan?
-    me gustan tus manos blancas.
-
-    Cortó sin más, por el centro,
-    dividiendo la baraja,
-    pude observar que no había,
-    cartón alguno ni trampa.
-
-    Me miró como ese niño
-    que algo esconde pero calla.
-    ¿Será ésta? - yo le dije:
-    ¡no puede ser! ¡esto es magia!
-
-    Magia sí, pero de cerca,
-    es magia sobre las palmas,
-    una mentira tan bella
-    hay que contarla en voz baja.
-
-    ¿Te gusta, mi corazón?
-    me gustan tus manos blancas.
-</pre>
-
-<p>Es un poema que escribí anoche y ahora comparto aquí. Creo que estoy
-razonablemente satisfecho con el resultado, aunque he de confesar que
-hace tiempo que no escribo poesía.</p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/magia-de-cerca/">permalink</a> |
-            <a href="/post/magia-de-cerca/#disqus_thread">comentarios</a>
         </div>
     
 
