@@ -30,6 +30,100 @@
 
 
 <div class="title">
+    Cosas que aprendí de... Yava
+</div>
+
+<div class="subtitle">
+    diciembre 19, 2015
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p><a href="https://github.com/Beluki/Yava">Yava</a> es un lanzador de aplicaciones escrito en C#, pensado para ser usado
+principalmente con emuladores como <a href="https://dolphin-emu.org">Dolphin</a>, <a href="http://mamedev.org">Mame</a>, <a href="http://snes9x.ipherswipsite.com">Snes9x</a>, etc...
+Es un pequeño menú desde el que ejecutar los juegos de una manera cómoda y rápida.</p>
+<p>Tiene esta pinta:</p>
+<p><img src="/static/17.png" alt="Yava"></p>
+<p>Aunque ya existen muchos programas parecidos (como <a href="https://www.launchbox-app.com">LaunchBox</a> o <a href="http://www.mgalaxy.com">mGalaxy</a>) no pude
+encontrar ninguno que cumpliese los siguientes requisitos:</p>
+<ul>
+<li>Fuese portable (funcione desde un pincho USB).</li>
+<li>No utilice una base de datos interna, solo carpetas y archivos.</li>
+<li>Sea fácil de configurar, preferiblemente en un solo archivo.</li>
+<li>Solo ejecute los juegos, delegando el resto del trabajo a cada emulador.</li>
+</ul>
+<h2>Arquitectura</h2>
+<p>Yava es prácticamente idéntico a <a href="http://beluki.github.io/post/cosas-que-aprendi-de-GaGa">GaGa</a> en diseño.</p>
+<p><img src="/static/18.png" alt="Yava"></p>
+<p>Usa las mismas librerías: <a href="https://github.com/Beluki/mINI">mINI</a> y <a href="https://github.com/Beluki/LowKey">LowKey</a>. Los componentes son también
+los mismos, excepto que no existe el concepto de Player (no hay reproductor)
+y StreamsFile es ahora FoldersFile, que es el fichero donde reside la configuración
+de todos los juegos/emuladores.</p>
+<p>Las únicas partes complicadas del código de Yava son probablemente el código que se
+encarga de recordar qué rom está seleccionada para cada carpeta (líneas 276 en
+adelante en <a href="https://github.com/Beluki/Yava/blob/master/Source/Yava/Yava.cs#L276">Yava.cs</a>) y lo relativo a ejecutar el emulador final pasándole la ruta
+correcta de la carpeta donde está.</p>
+<h2>Paths</h2>
+<p>¿No es tan complicado, no? Solo es ejecutar el emulador + la rom. El problema es
+que no hay una ruta correcta, sino múltiples rutas que pueden ser absolutas o relativas.</p>
+<p>Por ejemplo, si el archivo Folders.ini contiene...</p>
+<div class="codehilite"><pre><span class="k">[Wii]</span>
+<span class="na">path</span> <span class="o">=</span> <span class="s">Romset\Wii</span>
+<span class="na">executable</span> <span class="o">=</span> <span class="s">Emulators\Dolphin 4.0.3\Play\Dolphin.exe</span>
+<span class="na">parameters</span> <span class="o">=</span> <span class="s">--batch --exec &quot;%FILEPATH%&quot;</span>
+<span class="na">extensions</span> <span class="o">=</span> <span class="s">iso, wbfs</span>
+</pre></div>
+
+
+<p>Entonces:</p>
+<ul>
+<li>
+<p>"path" es una ruta relativa o absoluta a la carpeta donde están las roms de Wii.</p>
+</li>
+<li>
+<p>"executable" es una ruta relativa o absoluta a la carpeta donde reside el emulador, Dolphin.</p>
+</li>
+<li>
+<p>"parameters" contiene los argumentos a pasarle a Dolphin, donde el %FILEPATH% es la ROM a usar.</p>
+</li>
+</ul>
+<h2>Dos curiosidades</h2>
+<p>¿Cuál es el rendimiento que cabe esperar de un programa como Yava? Según mis pruebas
+tarda menos de 1 segundo en cargar las más de 45.000 roms de Mame directamente del
+sistema de archivos, sin base de datos ni nada. Buscar es instantáneo.</p>
+<p>¿Qué ocurre si configuramos el archivo Folders.ini así?</p>
+<div class="codehilite"><pre><span class="k">[Snes]</span>
+<span class="na">path</span> <span class="o">=</span> <span class="s">Romset\Snes</span>
+<span class="na">executable</span> <span class="o">=</span> <span class="s">%FILEPATH%</span>
+<span class="na">extensions</span> <span class="o">=</span> <span class="s">smc</span>
+</pre></div>
+
+
+<p>Yava intentará abrir las roms con extensión .smc con la aplicación asociada a ellas
+por defecto (sea el emulador que sea). Es posible hacer esto para cualquier extensión.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/cosas-que-aprendi-de-Yava/">permalink</a> |
+            <a href="/post/cosas-que-aprendi-de-Yava/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cosas que aprendí de... MovieWar
 </div>
 
@@ -509,51 +603,6 @@ búsquedas de manera rápida, explorar datasets, etc... También hay una suite d
         <div class="multilink">
             <a href="/post/cosas-que-aprendi-de-MQLite/">permalink</a> |
             <a href="/post/cosas-que-aprendi-de-MQLite/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    Grandmaster
-</div>
-
-<div class="subtitle">
-    octubre 29, 2015
-
-    <div class="multilink">
-        
-            <a href="/archive/dir/">dir</a>
-
-             | 
-        
-            <a href="/archive/grandmaster/">grandmaster</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p>Hace unos 4 meses (concretamente el 30 de Junio) terminé <a href="https://github.com/Beluki/dir">dir</a>,
-un pequeño juego programado en <a href="http://www.lua.org">Lua</a>, utilizando <a href="https://love2d.org">Love2D</a> como motor.
-Este post no es un postmortem acerca de dir, aunque no descarto escribir
-más posts sobre los proyectos que he hecho después de <a href="http://beluki.github.io/post/cosas-que-aprendi-de-GaGa/">GaGa</a>.</p>
-<p>Este post va de la que es probablemente la mejor partida que se ha
-jugado en dir hasta el momento. La siguiente screenshot me la envió <a href="http://verleeryescuchar.blogspot.com.es">mi
-pareja</a> por email en plan "te dije que lo haría":</p>
-<p><img src="/static/14.png" alt="grandmaster"></p>
-<p>Si no has jugado nunca a dir, es probable que la foto no te diga gran
-cosa. En dir, es realmente difícil alcanzar el ranking "grandmaster".
-Hay de hacer un combo de 25x, llegar al nivel 20 y hacer más de un
-millón de puntos en la misma partida.</p>
-<p>Si te atreves a intentarlo, dir es gratuito y puedes descargarlo <a href="https://github.com/Beluki/dir/releases">aquí</a>.</p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/grandmaster/">permalink</a> |
-            <a href="/post/grandmaster/#disqus_thread">comentarios</a>
         </div>
     
 
