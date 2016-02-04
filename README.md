@@ -11,5 +11,5 @@ Flask blog. The content is written in Spanish.
 Like all my hobby projects, this is Free Software. See the [Documentation][]
 folder for more information. No warranty though.
 
-[Documentation]: https://github.com/Beluki/beluki.github.io/tree/source/Documentation
+[Documentation]: Documentation
 
