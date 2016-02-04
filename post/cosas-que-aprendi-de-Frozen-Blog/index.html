@@ -97,9 +97,9 @@ externa y que usé en Frozen-Blog tanto para posts como para páginas.</p>
 <p>Una curiosidad sobre Flask es que sus archivos de configuración no son JSON
 o INI, sino código Python. En Frozen-Blog aprovecho esto para poder hacer
 cosas como la siguiente:</p>
-<div class="codehilite"><pre><span class="c"># cambia el formato de fecha/hora a castellano en todo el blog:</span>
+<div class="codehilite"><pre><span class="c1"># cambia el formato de fecha/hora a castellano en todo el blog:</span>
 <span class="kn">import</span> <span class="nn">locale</span>
-<span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s">&#39;spanish&#39;</span><span class="p">)</span>
+<span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;spanish&#39;</span><span class="p">)</span>
 </pre></div>
 
 

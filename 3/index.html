@@ -104,9 +104,9 @@ externa y que usé en Frozen-Blog tanto para posts como para páginas.</p>
 <p>Una curiosidad sobre Flask es que sus archivos de configuración no son JSON
 o INI, sino código Python. En Frozen-Blog aprovecho esto para poder hacer
 cosas como la siguiente:</p>
-<div class="codehilite"><pre><span class="c"># cambia el formato de fecha/hora a castellano en todo el blog:</span>
+<div class="codehilite"><pre><span class="c1"># cambia el formato de fecha/hora a castellano en todo el blog:</span>
 <span class="kn">import</span> <span class="nn">locale</span>
-<span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s">&#39;spanish&#39;</span><span class="p">)</span>
+<span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;spanish&#39;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -190,14 +190,14 @@ a Python 3 fue trivial, aunque también es cierto que EmbedDIBits es un programa
 muy pequeño y simple.</p>
 <p>De quejarme de algo sería de la conversión automática de finales de línea
 dependiendo de la plataforma actual en la que se ejecuta el código:</p>
-<div class="codehilite"><pre><span class="c"># texto\n en Unix</span>
-<span class="c"># texto\r\n en Windows</span>
-<span class="c"># texto\r en Mac OS</span>
+<div class="codehilite"><pre><span class="c1"># texto\n en Unix</span>
+<span class="c1"># texto\r\n en Windows</span>
+<span class="c1"># texto\r en Mac OS</span>
 <span class="k">print</span><span class="p">(</span><span class="n">texto</span><span class="p">)</span>
 
-<span class="c"># el final de línea que quieras, pero ha de ser en bytes:</span>
-<span class="n">eol</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">texto</span><span class="p">,</span> <span class="s">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">eol</span><span class="p">)</span>
+<span class="c1"># el final de línea que quieras, pero ha de ser en bytes:</span>
+<span class="n">eol</span> <span class="o">=</span> <span class="n">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">texto</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">eol</span><span class="p">)</span>
 </pre></div>
 
 
@@ -386,7 +386,7 @@ profundas y comprobar su igualdad. El siguiente ejemplo usa listas en Python.</p
 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">deep_list</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">==</span> <span class="n">deep_list</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
 <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-  <span class="n">File</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
 <span class="ne">RuntimeError</span><span class="p">:</span> <span class="n">maximum</span> <span class="n">recursion</span> <span class="n">depth</span> <span class="n">exceeded</span> <span class="ow">in</span> <span class="n">comparison</span>
 </pre></div>
 

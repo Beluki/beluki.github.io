@@ -69,14 +69,14 @@ a Python 3 fue trivial, aunque también es cierto que EmbedDIBits es un programa
 muy pequeño y simple.</p>
 <p>De quejarme de algo sería de la conversión automática de finales de línea
 dependiendo de la plataforma actual en la que se ejecuta el código:</p>
-<div class="codehilite"><pre><span class="c"># texto\n en Unix</span>
-<span class="c"># texto\r\n en Windows</span>
-<span class="c"># texto\r en Mac OS</span>
+<div class="codehilite"><pre><span class="c1"># texto\n en Unix</span>
+<span class="c1"># texto\r\n en Windows</span>
+<span class="c1"># texto\r en Mac OS</span>
 <span class="k">print</span><span class="p">(</span><span class="n">texto</span><span class="p">)</span>
 
-<span class="c"># el final de línea que quieras, pero ha de ser en bytes:</span>
-<span class="n">eol</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">texto</span><span class="p">,</span> <span class="s">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">eol</span><span class="p">)</span>
+<span class="c1"># el final de línea que quieras, pero ha de ser en bytes:</span>
+<span class="n">eol</span> <span class="o">=</span> <span class="n">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">texto</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">eol</span><span class="p">)</span>
 </pre></div>
 
 

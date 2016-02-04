@@ -251,7 +251,7 @@ tarea completada tan pronto como se encuentre en los resultados:</p>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_task</span><span class="p">()</span>
 
-        <span class="c"># at this point, all the tasks are completed:</span>
+        <span class="c1"># at this point, all the tasks are completed:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">todo</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </pre></div>
 
@@ -268,7 +268,7 @@ tarea completada tan pronto como se encuentre en los resultados:</p>
                 <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
                 <span class="k">break</span>
 
-            <span class="c"># give tasks processor time:</span>
+            <span class="c1"># give tasks processor time:</span>
             <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 </pre></div>
@@ -287,13 +287,13 @@ ha sido completada.</p>
 
     <span class="n">pool</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
-    <span class="c"># should print the results in order</span>
-    <span class="c"># first from 1 to 32, then from 32 to 1:</span>
+    <span class="c1"># should print the results in order</span>
+    <span class="c1"># first from 1 to 32, then from 32 to 1:</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">poll_completed_tasks</span><span class="p">():</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&#39;fib({0.number}): {0.result}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;fib({0.number}): {0.result}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">main</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>

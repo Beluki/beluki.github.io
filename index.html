@@ -241,7 +241,7 @@ y que cada jugador suele ser experto en diferentes géneros de cine.</p>
     <p><a href="https://github.com/Beluki/404">404</a> es un pequeño programa escrito en Python que permite comprobar el estado
 de una serie de enlaces en una página web.</p>
 <p>Un ejemplo:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>404.py http://beluki.github.io --threads <span class="m">10</span> --internal follow --external check
+<div class="codehilite"><pre>$ 404.py http://beluki.github.io --threads <span class="m">10</span> --internal follow --external check
 404: http://cdimage.debian.org/debian-cd/7.8.0/i386/iso-cd/
 Checked <span class="m">181</span> total links in 10.4 seconds.
 <span class="m">55</span> internal, <span class="m">126</span> external.
@@ -262,17 +262,17 @@ vez creado, el resto es cuestión de utilizar <a href="http://www.crummy.com/sof
 ya se encarga de escoger el mejor parser de HTML existente en el sistema y es flexible
 con respecto al código en si.</p>
 <p>Por eficiencia, 404 solo tiene en cuenta enlaces &lt;a href... e &lt;img src...</p>
-<div class="codehilite"><pre><span class="n">link_strainer</span> <span class="o">=</span> <span class="n">SoupStrainer</span><span class="p">(</span><span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">:</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;a&#39;</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;img&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span class="n">link_strainer</span> <span class="o">=</span> <span class="n">SoupStrainer</span><span class="p">(</span><span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">:</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;a&#39;</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;img&#39;</span><span class="p">)</span>
 
-<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">&#39;html.parser&#39;</span><span class="p">,</span> <span class="n">parse_only</span> <span class="o">=</span> <span class="n">link_strainer</span><span class="p">,</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">,</span> <span class="n">parse_only</span> <span class="o">=</span> <span class="n">link_strainer</span><span class="p">,</span>
                         <span class="n">from_encoding</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
 
-<span class="c"># a href...</span>
-<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">href</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<span class="c1"># a href...</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">href</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="o">...</span>
 
-<span class="c"># img src...</span>
-<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;img&#39;</span><span class="p">,</span> <span class="n">src</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<span class="c1"># img src...</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;img&#39;</span><span class="p">,</span> <span class="n">src</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 
@@ -484,7 +484,7 @@ cosas que el original, debido a la necesidad de realizar búsquedas sobre <a hre
 arbitrario en lugar de una base de datos concreta.</p>
 <p>Como lo mejor es un ejemplo... El siguiente comando devuelve la lista de repositorios
 que tengo en Github con al menos 1 fork activo.</p>
-<div class="codehilite"><pre><span class="nv">$ </span>curl https://api.github.com/users/Beluki/repos
+<div class="codehilite"><pre>$ curl https://api.github.com/users/Beluki/repos
 <span class="p">|</span> MQlite.py <span class="s1">&#39;[{&quot;name&quot;: null, &quot;forks&quot;: null, &quot;forks &gt;&quot;: 0}]&#39;</span>
 <span class="o">[</span>
     <span class="o">{</span>
@@ -542,9 +542,9 @@ Otros datos, como las listas o los diccionarios, permiten operaciones más compl
 <p>Que queda así:</p>
 <div class="codehilite"><pre><span class="n">MatchList</span><span class="p">(</span>
     <span class="n">MatchDict</span><span class="p">(</span>
-        <span class="p">[{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="n">MatchAny</span><span class="p">()</span> <span class="p">}],</span>
-        <span class="p">[{</span> <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="n">ConstraintBiggerThan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="p">}],</span>
-        <span class="p">[{</span> <span class="s">&quot;__sort__&quot;</span><span class="p">:</span> <span class="n">DirectiveSort</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">)</span> <span class="p">}]</span>
+        <span class="p">[{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">MatchAny</span><span class="p">()</span> <span class="p">}],</span>
+        <span class="p">[{</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">ConstraintBiggerThan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="p">}],</span>
+        <span class="p">[{</span> <span class="s2">&quot;__sort__&quot;</span><span class="p">:</span> <span class="n">DirectiveSort</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span> <span class="p">}]</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -576,21 +576,21 @@ búsqueda (dado que los diccionarios de Python no garantizan un orden concreto).
 de Python. Para hacerlo, basta con usar el objeto "Pattern" de la API en lugar de "JSONPattern".</p>
 <div class="codehilite"><pre><span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
-        <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;James&quot;</span><span class="p">,</span>
-        <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
-        <span class="s">&quot;student&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-        <span class="s">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;chess&quot;</span><span class="p">,</span> <span class="s">&quot;football&quot;</span><span class="p">,</span> <span class="s">&quot;basketball&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;James&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chess&quot;</span><span class="p">,</span> <span class="s2">&quot;football&quot;</span><span class="p">,</span> <span class="s2">&quot;basketball&quot;</span><span class="p">]</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;John&quot;</span><span class="p">,</span>
-        <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
-        <span class="s">&quot;student&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s">&quot;grades&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s">&quot;chemistry&quot;</span><span class="p">:</span> <span class="s">&quot;C&quot;</span><span class="p">,</span> <span class="s">&quot;english&quot;</span><span class="p">:</span> <span class="s">&quot;A&quot;</span> <span class="p">},</span>
-        <span class="s">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;reading&quot;</span><span class="p">,</span> <span class="s">&quot;swimming&quot;</span><span class="p">,</span> <span class="s">&quot;painting&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s2">&quot;grades&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;chemistry&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;english&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span> <span class="p">},</span>
+        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reading&quot;</span><span class="p">,</span> <span class="s2">&quot;swimming&quot;</span><span class="p">,</span> <span class="s2">&quot;painting&quot;</span><span class="p">]</span>
     <span class="p">}</span>
 <span class="p">]</span>
 
-<span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">([{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;age in&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span> <span class="p">}])</span>
+<span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">([{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;age in&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span> <span class="p">}])</span>
 <span class="k">print</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 </pre></div>
 

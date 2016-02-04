@@ -55,7 +55,7 @@ cosas que el original, debido a la necesidad de realizar búsquedas sobre <a hre
 arbitrario en lugar de una base de datos concreta.</p>
 <p>Como lo mejor es un ejemplo... El siguiente comando devuelve la lista de repositorios
 que tengo en Github con al menos 1 fork activo.</p>
-<div class="codehilite"><pre><span class="nv">$ </span>curl https://api.github.com/users/Beluki/repos
+<div class="codehilite"><pre>$ curl https://api.github.com/users/Beluki/repos
 <span class="p">|</span> MQlite.py <span class="s1">&#39;[{&quot;name&quot;: null, &quot;forks&quot;: null, &quot;forks &gt;&quot;: 0}]&#39;</span>
 <span class="o">[</span>
     <span class="o">{</span>
@@ -113,9 +113,9 @@ Otros datos, como las listas o los diccionarios, permiten operaciones más compl
 <p>Que queda así:</p>
 <div class="codehilite"><pre><span class="n">MatchList</span><span class="p">(</span>
     <span class="n">MatchDict</span><span class="p">(</span>
-        <span class="p">[{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="n">MatchAny</span><span class="p">()</span> <span class="p">}],</span>
-        <span class="p">[{</span> <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="n">ConstraintBiggerThan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="p">}],</span>
-        <span class="p">[{</span> <span class="s">&quot;__sort__&quot;</span><span class="p">:</span> <span class="n">DirectiveSort</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">)</span> <span class="p">}]</span>
+        <span class="p">[{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">MatchAny</span><span class="p">()</span> <span class="p">}],</span>
+        <span class="p">[{</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">ConstraintBiggerThan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="p">}],</span>
+        <span class="p">[{</span> <span class="s2">&quot;__sort__&quot;</span><span class="p">:</span> <span class="n">DirectiveSort</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span> <span class="p">}]</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -147,21 +147,21 @@ búsqueda (dado que los diccionarios de Python no garantizan un orden concreto).
 de Python. Para hacerlo, basta con usar el objeto "Pattern" de la API en lugar de "JSONPattern".</p>
 <div class="codehilite"><pre><span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
-        <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;James&quot;</span><span class="p">,</span>
-        <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
-        <span class="s">&quot;student&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-        <span class="s">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;chess&quot;</span><span class="p">,</span> <span class="s">&quot;football&quot;</span><span class="p">,</span> <span class="s">&quot;basketball&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;James&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chess&quot;</span><span class="p">,</span> <span class="s2">&quot;football&quot;</span><span class="p">,</span> <span class="s2">&quot;basketball&quot;</span><span class="p">]</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;John&quot;</span><span class="p">,</span>
-        <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
-        <span class="s">&quot;student&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s">&quot;grades&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s">&quot;chemistry&quot;</span><span class="p">:</span> <span class="s">&quot;C&quot;</span><span class="p">,</span> <span class="s">&quot;english&quot;</span><span class="p">:</span> <span class="s">&quot;A&quot;</span> <span class="p">},</span>
-        <span class="s">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;reading&quot;</span><span class="p">,</span> <span class="s">&quot;swimming&quot;</span><span class="p">,</span> <span class="s">&quot;painting&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s2">&quot;grades&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;chemistry&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;english&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span> <span class="p">},</span>
+        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reading&quot;</span><span class="p">,</span> <span class="s2">&quot;swimming&quot;</span><span class="p">,</span> <span class="s2">&quot;painting&quot;</span><span class="p">]</span>
     <span class="p">}</span>
 <span class="p">]</span>
 
-<span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">([{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;age in&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span> <span class="p">}])</span>
+<span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">([{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;age in&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span> <span class="p">}])</span>
 <span class="k">print</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 </pre></div>
 

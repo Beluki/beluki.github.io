@@ -76,7 +76,7 @@ la librería que MultiHash usa para calcular los algoritmos, encuentra:</p>
 <span class="cm"> */</span>
 
 <span class="cp">#ifdef WITH_THREAD</span>
-<span class="cp">#include &quot;pythread.h&quot;</span>
+<span class="cp">#include</span> <span class="cpf">&quot;pythread.h&quot;</span><span class="cp"></span>
     <span class="cp">#define ENTER_HASHLIB(obj) \</span>
 <span class="cp">        if ((obj)-&gt;lock) { \</span>
 <span class="cp">            if (!PyThread_acquire_lock((obj)-&gt;lock, 0)) { \</span>
