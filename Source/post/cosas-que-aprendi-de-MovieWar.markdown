@@ -17,10 +17,10 @@ He aquí una foto:
 Algunas características interesantes del programa:
 
 * Singleplayer o multiplayer (cualquier número de jugadores, por turnos).
-* Incluye más de 7600 películas populares en la base de datos.
+* Incluye 7600 películas populares en la base de datos.
 * Dos modos de juego: "película aleatoria" o "un jugador escoge y el resto adivinan fecha".
 * Usa [OMDB][] para buscar películas que desconoce y actualiza la DB con las entradas nuevas.
-* Soporte de colores opcional, utilizando [Colorama][].
+* Soporte de colores opcional, utilizando [Colorama][] (Windows) o colores ansi (Unix, MSYS).
 
 [OMDB]: http://www.omdbapi.com
 [Colorama]: https://pypi.python.org/pypi/colorama
@@ -54,7 +54,7 @@ completa. El [segundo][], convierte los datos a un formato más simple, validand
 y fecha en el proceso.
 
 El [tercero][], utiliza [OMDB][] para verificar que todas las fechas de salida y títulos
-de Freebase coinciden con el esperado en OMDB. De 9169 películas, 7616 concuerdan exactamente
+de Freebase coinciden con el esperado en OMDB. De 9169 películas, 7601 concuerdan exactamente
 en ambas bases de datos. Este script puede tardar tranquilamente 2 horas en ejecutarse, pero
 mejor calidad que cantidad.
 
