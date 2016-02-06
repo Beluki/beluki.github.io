@@ -156,10 +156,10 @@ de una película a partir de su título.</p>
 <p>Algunas características interesantes del programa:</p>
 <ul>
 <li>Singleplayer o multiplayer (cualquier número de jugadores, por turnos).</li>
-<li>Incluye más de 7600 películas populares en la base de datos.</li>
+<li>Incluye 7600 películas populares en la base de datos.</li>
 <li>Dos modos de juego: "película aleatoria" o "un jugador escoge y el resto adivinan fecha".</li>
 <li>Usa <a href="http://www.omdbapi.com">OMDB</a> para buscar películas que desconoce y actualiza la DB con las entradas nuevas.</li>
-<li>Soporte de colores opcional, utilizando <a href="https://pypi.python.org/pypi/colorama">Colorama</a>.</li>
+<li>Soporte de colores opcional, utilizando <a href="https://pypi.python.org/pypi/colorama">Colorama</a> (Windows) o colores ansi (Unix, MSYS).</li>
 </ul>
 <h2>La base de datos</h2>
 <p>MovieWar es un programa simple, secuencial, basado en turnos. La entrada/salida
@@ -179,7 +179,7 @@ y  son películas razonablemente populares (no hay Bollywood ni nada por el esti
 completa. El <a href="https://github.com/Beluki/MovieWarDBGen/blob/master/Source/01%20convert%20freebase.py">segundo</a>, convierte los datos a un formato más simple, validando el título
 y fecha en el proceso.</p>
 <p>El <a href="https://github.com/Beluki/MovieWarDBGen/blob/master/Source/02%20match%20omdb.py">tercero</a>, utiliza <a href="http://www.omdbapi.com">OMDB</a> para verificar que todas las fechas de salida y títulos
-de Freebase coinciden con el esperado en OMDB. De 9169 películas, 7616 concuerdan exactamente
+de Freebase coinciden con el esperado en OMDB. De 9169 películas, 7601 concuerdan exactamente
 en ambas bases de datos. Este script puede tardar tranquilamente 2 horas en ejecutarse, pero
 mejor calidad que cantidad.</p>
 <p>Un <a href="https://github.com/Beluki/MovieWarDBGen/blob/master/Source/03%20collapse%20years.py">cuarto</a> script se encarga de colapsar los años de películas que tienen el mismo título
