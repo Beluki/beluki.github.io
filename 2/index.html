@@ -30,6 +30,163 @@
 
 
 <div class="title">
+    Cosas que aprendí de... MQLite
+</div>
+
+<div class="subtitle">
+    diciembre 14, 2015
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+             | 
+        
+            <a href="/archive/python/">python</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p><a href="https://github.com/Beluki/MQLite">MQLite</a> es un pequeño dialecto basado en <a href="http://wiki.freebase.com/wiki/MQL">MQL</a>, el lenguaje que se utiliza en
+<a href="https://www.freebase.com">Freebase</a> para realizar búsquedas. Está escrito en Python 3 y es un compilador
+sencillo a un <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a> recursivo de nodos que implementan un método "match".</p>
+<p>Aunque el núcleo de MQLite es un subset de MQL, en realidad implementa bastantes más
+cosas que el original, debido a la necesidad de realizar búsquedas sobre <a href="https://en.wikipedia.org/wiki/JSON">JSON</a>
+arbitrario en lugar de una base de datos concreta.</p>
+<p>Como lo mejor es un ejemplo... El siguiente comando devuelve la lista de repositorios
+que tengo en Github con al menos 1 fork activo.</p>
+<div class="codehilite"><pre>$ curl https://api.github.com/users/Beluki/repos
+<span class="p">|</span> MQlite.py <span class="s1">&#39;[{&quot;name&quot;: null, &quot;forks&quot;: null, &quot;forks &gt;&quot;: 0}]&#39;</span>
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;GaGa&quot;</span>,
+        <span class="s2">&quot;forks&quot;</span>: 2
+    <span class="o">}</span>,
+    <span class="o">{</span>
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;MQLite&quot;</span>,
+        <span class="s2">&quot;forks&quot;</span>: 1
+    <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+
+
+<h2>Arquitectura</h2>
+<p>MQLite es un proyecto relativamente simple porque no necesita un parser. Utiliza la misma
+sintaxis que JSON. Una vez tenemos los datos a buscar y un archivo .json donde buscarlos,
+solo queda preprocesar la búsqueda para poder hacerla del modo más eficientemente posible.</p>
+<p>Uno de los límites que me puse al implementarlo, es que MQLite nunca debería modificar
+los datos JSON sobre los que busca, ni ordenándolos ni optimizándolos. Al fin y al cabo, si
+realmente necesitas eso, te conviene más una base de datos real.</p>
+<p>Si no podemos modificar los datos, solo queda representar la búsqueda. En el caso de MQLite,
+está hecha a partir de una serie de nodos (objetos) con un método: "match" que devuelve o bien
+una "respuesta" o "vacío" dependiendo de si los datos de la búsqueda coinciden con alguno
+existente en la base de datos.</p>
+<p>Como "None" es un resultado válido, "vacío" se representa con una clase propia:</p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">_NoMatch</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom class to represent no matches.</span>
+<span class="sd">    Needed because None is a legitimate match.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="n">NoMatch</span> <span class="o">=</span> <span class="n">_NoMatch</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Y "concuerda con cualquier cosa" se representa así:</p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">MatchAny</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Match any input data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+
+<p>La mayoría de nodos son sencillos. Cadenas, números o booleanos solo concuerdan consigo mismos.
+Otros datos, como las listas o los diccionarios, permiten operaciones más complejas.</p>
+<p>Un ejemplo de búsqueda una vez transformada a esta representación, podría ser:</p>
+<div class="codehilite"><pre><span class="p">[{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="nt">&quot;age &gt;&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="nt">&quot;__sort__&quot;</span><span class="p">:</span> <span class="s2">&quot;age&quot;</span> <span class="p">}]</span>
+</pre></div>
+
+
+<p>Que queda así:</p>
+<div class="codehilite"><pre><span class="n">MatchList</span><span class="p">(</span>
+    <span class="n">MatchDict</span><span class="p">(</span>
+        <span class="p">[{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">MatchAny</span><span class="p">()</span> <span class="p">}],</span>
+        <span class="p">[{</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">ConstraintBiggerThan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="p">}],</span>
+        <span class="p">[{</span> <span class="s2">&quot;__sort__&quot;</span><span class="p">:</span> <span class="n">DirectiveSort</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span> <span class="p">}]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Y significa:</p>
+<p>Dame el nombre de todos los items en la base de datos que cumplan la condición de tener una edad
+mayor de 25 e imprímelos en orden ascencente.</p>
+<h2>Dificultades</h2>
+<p>La parte más complicada de escribir MQLite fue con bastante diferencia encontrar una sintaxis
+adecuada para expresar las búsquedas. En el <a href="https://github.com/Beluki/MQLite">README</a> hay numerosos ejemplos de búsquedas complejas
+con directivas, constraints y todo tipo de opciones.</p>
+<p>Dos limitaciones de MQLite son:</p>
+<p>Es imposible escribir una cláusula "A o B" para dos claves distintas.</p>
+<div class="codehilite"><pre><span class="p">[{</span> <span class="nt">&quot;a:age &gt;&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="nt">&quot;b:name in&quot;</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="p">}]</span>
+</pre></div>
+
+
+<p>Algunas directivas, en particular "__limit__", son sensibles al orden.</p>
+<div class="codehilite"><pre><span class="p">[{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="nt">&quot;__sort__&quot;</span><span class="p">:</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="nt">&quot;__limit__&quot;</span><span class="p">:</span> <span class="mi">3</span> <span class="p">}]</span>
+</pre></div>
+
+
+<p>Esta última búsqueda ordenará PRIMERO y limitará después en lugar de hacerlo al contrario.
+En su API, MQLite usa <a href="https://docs.python.org/3/library/collections.html#collections.OrderedDict">OrderedDict</a> para asegurarse de mantener el orden correcto en cada
+búsqueda (dado que los diccionarios de Python no garantizan un orden concreto).</p>
+<h2>Compatibilidad con Python</h2>
+<p>Aunque MQLite está pensado para JSON, puede buscar en prácticamente cualquier cosa iterable
+de Python. Para hacerlo, basta con usar el objeto "Pattern" de la API en lugar de "JSONPattern".</p>
+<div class="codehilite"><pre><span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;James&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chess&quot;</span><span class="p">,</span> <span class="s2">&quot;football&quot;</span><span class="p">,</span> <span class="s2">&quot;basketball&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s2">&quot;grades&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;chemistry&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;english&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span> <span class="p">},</span>
+        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reading&quot;</span><span class="p">,</span> <span class="s2">&quot;swimming&quot;</span><span class="p">,</span> <span class="s2">&quot;painting&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">([{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;age in&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span> <span class="p">}])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Como añadido, MQLite incluye una <a href="https://raw.githubusercontent.com/Beluki/MQLite/master/Source/MQLiteSH.py">pequeña shell</a> para poder experimentar con distintas
+búsquedas de manera rápida, explorar datasets, etc... También hay una suite de <a href="https://github.com/Beluki/MQLite/blob/master/Test/MQTest.py">tests</a> disponible.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/cosas-que-aprendi-de-MQLite/">permalink</a> |
+            <a href="/post/cosas-que-aprendi-de-MQLite/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Grandmaster
 </div>
 
@@ -463,108 +620,6 @@ pegar con mutex y las cosas realmente complicadas.</p>
         <div class="multilink">
             <a href="/post/cosas-que-aprendi-de-MultiHash/">permalink</a> |
             <a href="/post/cosas-que-aprendi-de-MultiHash/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    Cosas que aprendí de... HexPaste
-</div>
-
-<div class="subtitle">
-    enero 08, 2015
-
-    <div class="multilink">
-        
-            <a href="/archive/postmortem/">postmortem</a>
-
-             | 
-        
-            <a href="/archive/programacion/">programación</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p>Siempre me ha gustado la literatura, especialmente la poesía. Por eso, a veces
-comparto aquí las cosillas que voy escribiendo. También por eso, el primer
-canal de IRC al que entré hace años era de poesía: #poesia en IRC-Hispano.</p>
-<p>Aunque ahora es muy diferente, por aquel entonces el canal era un pequeño y
-acogedor grupo de amigos compartiendo poemas. Lorca, Miguel Hernández, Rafael
-De León... un poco de todo. De todo esto hace unos 12 años.</p>
-<p>Lo primero que aprendí es que copiar y pegar un poema a mano no es práctico.
-La mayoría de usuarios (yo incluído) usábamos un comando de <a href="http://www.mirc.com">mIRC</a> que se
-llama /play para recitar.</p>
-<p>Tiene esta pinta:</p>
-<p><img src="/static/10.png" alt="play"></p>
-<p>Lo más útil es que permite especificar un retardo entre líneas de modo que el
-poema vaya apareciendo poco a poco y sea cómodo de leer. Así fue como recité
-durante años, hasta que llegó un momento en el que quise probar linux y otros
-sistemas operativos.</p>
-<h2>XChat</h2>
-<p>Lo más parecido a mIRC para linux es <a href="http://xchat.org">XChat</a>. XChat está bien pero no tiene
-nada que se parezca al comando /play, así que sin un plugin para poder recitar
-volví a tener que recitar los poemas a mano.</p>
-<p>Aunque por aquel entonces tampoco tenía mucha idea de programación, decidí intentar
-hacer mi propio plugin para XChat que me permitiese recitar poemas en el canal.
-Este fue el origen de HexPaste, que es quizá el programa más antiguo (al menos
-sus raíces) de todos los que tengo actualmente en Github.</p>
-<p>En su momento, escribí ese plugin en <a href="https://www.perl.org">Perl</a> y era extremadamente limitado.
-Por no poder no podías ni cambiar de pestaña durante un recitado porque siempre
-pegaba el texto a la pestaña actualmente activa.</p>
-<h2>HexChat y HexPaste</h2>
-<p>Tras unos cuantos años un poco alejado del canal y sus quehaceres, al final volví.
-Supongo que el gusanillo de la poesía está siempre ahí. XChat es ahora un proyecto
-fantasma (su última actualización es de hace 5 años) y lo que se lleva es <a href="http://hexchat.github.io">HexChat</a>.</p>
-<p>Con más conocimientos, decidí reescribir aquel plugin que había hecho en Perl pero
-en Python, mucho más robusto y práctico que antaño. Esta vez, añadiría cosas como
-poder recitar en múltiples canales a la vez o que sustituyese líneas en blanco en
-un archivo por espacios.</p>
-<p><a href="https://github.com/Beluki/HexPaste">HexPaste</a> es en realidad un programa muy simple. Son unas 350 líneas de código
-escritas en Python 3. No hubo grandes problemas durante su desarrollo en cuestión
-de arquitectura porque tenía bastante claro lo que buscaba.</p>
-<p>El mayor problema fue la <a href="http://hexchat.readthedocs.org/en/latest/script_python.html">API para Python de HexChat</a>. Esta API es poco más que
-la API de C pero expuesta a Python, sin ningún tipo de ayuda o intención por hacerla
-más idiomática a lo que un programador de Python esperaría:</p>
-<ul>
-<li>
-<p>Muchos campos son bitfields.</p>
-</li>
-<li>
-<p>Un "contexto" (canal, query) del tipo que <a href="http://hexchat.readthedocs.org/en/latest/script_python.html#hexchat.get_context">hexchat.get_context()</a> devuelve
-  no es "hashable" y no se puede usar como clave en un diccionario de Python.</p>
-</li>
-<li>
-<p>Muchas veces HexChat se come las excepciones, sin mostrar mensaje de error alguno.</p>
-</li>
-<li>
-<p>Como se usan timers en lugar de threads es extremadamente fácil hacer que HexChat
-  pete completamente debido a un bug y tengas que reabrirlo.</p>
-</li>
-</ul>
-<p>Tengo la teoría de que es esta API la culpable de que la mayoría de plugins para
-HexChat (y antes XChat) sean juguetes comparados con los que existen para mIRC
-y otros clientes de IRC.</p>
-<p>Por lo demás, tacos mediante, HexPaste fue más o menos fácil de crear. Y fácil
-de portar de Python 2 a Python 3. Es uno de los proyectos que más he usado de
-los que he hecho.</p>
-<h2>Conclusiones</h2>
-<p>Creo que la lección más importante que he aprendido de HexPaste es que la necesidad
-es una buena compañera de proyectos.</p>
-<p>Muchos programas parten de ideas interesantes a explorar, donde hay que hacer una
-mayor labor de diseño que de programación. Este parte de necesitar algo que no existe
-para aliviar la incomodidad de copiar/pegar a mano. Hay pocas satisfacciones mejores
-que usar diaramente algo que has creado tú.</p>
-<p>Repositorios en Github: <a href="https://github.com/Beluki/HexPaste">HexPaste</a></p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/cosas-que-aprendi-de-HexPaste/">permalink</a> |
-            <a href="/post/cosas-que-aprendi-de-HexPaste/#disqus_thread">comentarios</a>
         </div>
     
 

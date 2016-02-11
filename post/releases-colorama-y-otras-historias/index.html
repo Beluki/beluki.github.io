@@ -1,0 +1,155 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Beluki</title>
+        <link rel="stylesheet" href="/static/style.css" type="text/css">
+        <link rel="stylesheet" href="/static/codehilite.css" type="text/css">
+    </head>
+
+    <body>
+        <div class="top-bar">
+            <ul>
+                <li> <a href="/">índice</a> </li>
+                <li> <a href="/archive/">archivo</a> </li>
+                <li> <a href="/page/about/">acerca de</a> </li>
+            </ul>
+        </div>
+        <div class="wrapper">
+            
+    
+
+
+<div class="title">
+    Releases, Colorama y otras historias
+</div>
+
+<div class="subtitle">
+    febrero 11, 2016
+
+    <div class="multilink">
+        
+            <a href="/archive/programacion/">programación</a>
+
+             | 
+        
+            <a href="/archive/python/">python</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Esta semana he estado revisando todos mis proyectos en Github y testeándolos
+un poco con las versiones nuevas de los compiladores y librerías que usan.
+No hay cambios en los Changelog más allá de que compilan con VS 2015 o el
+último MinGW, Python 3.5... este tipo de cosas.</p>
+<p>He hecho release de todos, así que si quieres tener los últimos ejecutables
+de <a href="https://github.com/Beluki/dir">dir</a>, <a href="https://github.com/Beluki/GaGa">GaGa</a>, <a href="https://github.com/Beluki/Yava">Yava</a>, etc... están calentitos salidos del horno.</p>
+<p><a href="https://github.com/Beluki?tab=repositories">22 proyectos</a>. Y aún me parece que empecé ayer.
+Solo hay un proyecto con cambios reales y necesarios, del que ya hice un
+postmortem en su momento: <a href="https://github.com/Beluki/MovieWar">MovieWar</a>.</p>
+<h2>Colorama y MovieWar</h2>
+<p><a href="https://pypi.python.org/pypi/colorama">Colorama</a> es la librería que uso en MovieWar para poder escribir con colores
+en la terminal. Es portable y funciona correctamente en Windows, Linux, etc...
+O eso se supone.</p>
+<p>Probando en <a href="https://msys2.github.io">MSYS2</a> en lugar de <a href="http://www.mingw.org/wiki/msys">MSYS</a>, me di cuenta de que MovieWar no mostraba
+color alguno. ¿Uh?. La razón es que <a href="https://mintty.github.io">mintty</a> no se comporta como una consola
+normal sino "no interactiva" y que además, ya es capaz por si misma de reconocer
+los códigos de colores ANSI sin necesidad de usar librería alguna.</p>
+<p>Como es imposible saber bajo que consola se está ejecutando MovieWar o las cosas
+soporta, mi solución fue la siguiente:</p>
+<ul>
+<li>Asumir por defecto que la terminal no soporta color alguno.</li>
+<li>Dos parámetros: "--ansi-colors" y "--colorama" para el usuario pueda elegir.</li>
+<li>Usar siempre los <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">códigos de escape ANSI</a> y cerrarlos a mano, sin autoreset en
+colorama.</li>
+</ul>
+<p>El código tiene esta pinta (nota: no se pueden poner ambos parámetros a la vez):</p>
+<div class="codehilite"><pre><span class="c1"># initialize colors as empty strings until we know we want them:</span>
+<span class="n">player_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+<span class="n">game_color</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<span class="n">enable_colors</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">colorama</span> <span class="ow">and</span> <span class="n">HAVE_COLORAMA</span><span class="p">:</span>
+    <span class="n">colorama</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="n">enable_colors</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">ansi_colors</span><span class="p">:</span>
+    <span class="n">enable_colors</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="k">if</span> <span class="n">enable_colors</span><span class="p">:</span>
+    <span class="c1"># red, green, yellow, magenta, cyan:</span>
+    <span class="n">player_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;31m&#39;</span><span class="p">,</span> <span class="s1">&#39;32m&#39;</span><span class="p">,</span> <span class="s1">&#39;33m&#39;</span><span class="p">,</span> <span class="s1">&#39;35m&#39;</span><span class="p">,</span> <span class="s1">&#39;36m&#39;</span><span class="p">]</span>
+
+    <span class="c1"># white:</span>
+    <span class="n">game_color</span> <span class="o">=</span> <span class="s1">&#39;37m&#39;</span>
+</pre></div>
+
+
+<p>Y la función para imprimir en color:</p>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">print_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a message to stdout, possibly in color.</span>
+<span class="sd">    When the message is empty, print a newline.</span>
+
+<span class="sd">    When color is an ansi code: use it for coloring.</span>
+<span class="sd">    When color is an empty string: behave like the regular print().</span>
+<span class="sd">    Auto-reset color back to default after printing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1;&#39;</span> <span class="o">+</span> <span class="n">color</span> <span class="o">+</span> <span class="n">message</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">,</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Y ahora todo funciona como debería en cualquier terminal:</p>
+<p>Debian:</p>
+<p><img src="/static/19.png" alt="MovieWar Debian"></p>
+<p>Windows, cmd.exe:</p>
+<p><img src="/static/20.png" alt="MovieWar cmd.exe"></p>
+<p>Windows, MSYS2:</p>
+<p><img src="/static/21.png" alt="MovieWar MSYS2"></p>
+<h2>Otras historias</h2>
+<p>En medio de todo el embrollo, también he terminado un proyecto "nuevo"
+que ya está disponible en Github: <a href="https://github.com/Beluki/Tileboard">Tileboard</a>. Quizá haga un postmortem
+sobre él en el futuro. Es uno de esos programas que parecen triviales a
+simple vista, pero no lo son. De momento el README tiene bastante información.</p>
+<p>Dejo también una curiosidad de la que <a href="http://verleeryescuchar.blogspot.com.es">mi pareja</a> me ha hablado y que
+me ha gustado mucho: <a href="http://apod.nasa.gov/apod/astropix.html">Astropix</a> o "Astronomy Picture of the Day", donde
+hay una foto nueva sobre el cosmos cada día con explicación y todo.</p>
+<p>Si les visitas, no dejes de echar un ojo al archivo, porque llevan haciendo
+esto desde el <a href="http://apod.nasa.gov/apod/archivepix.html">16 de Junio del 95</a>. Hay muchas preciosas. <a href="http://apod.nasa.gov/apod/ap000130.html">Me encanta ésta</a>.</p>
+</div>
+
+    
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    (function() {
+        var disqus = document.createElement('script');
+
+        disqus.type = 'text/javascript';
+        disqus.async = true;
+        disqus.src = '//beluki.disqus.com/embed.js';
+
+        (document.getElementsByTagName('head')[0] ||
+         document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+</script>
+
+<noscript>
+    <div class="content">
+        <p> (no se pueden mostrar los comentarios, Javascript está desactivado) </p>
+    </div>
+</noscript>
+
+
+        </div>
+    </body>
+</html>

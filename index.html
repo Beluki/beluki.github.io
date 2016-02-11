@@ -30,6 +30,120 @@
 
 
 <div class="title">
+    Releases, Colorama y otras historias
+</div>
+
+<div class="subtitle">
+    febrero 11, 2016
+
+    <div class="multilink">
+        
+            <a href="/archive/programacion/">programación</a>
+
+             | 
+        
+            <a href="/archive/python/">python</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Esta semana he estado revisando todos mis proyectos en Github y testeándolos
+un poco con las versiones nuevas de los compiladores y librerías que usan.
+No hay cambios en los Changelog más allá de que compilan con VS 2015 o el
+último MinGW, Python 3.5... este tipo de cosas.</p>
+<p>He hecho release de todos, así que si quieres tener los últimos ejecutables
+de <a href="https://github.com/Beluki/dir">dir</a>, <a href="https://github.com/Beluki/GaGa">GaGa</a>, <a href="https://github.com/Beluki/Yava">Yava</a>, etc... están calentitos salidos del horno.</p>
+<p><a href="https://github.com/Beluki?tab=repositories">22 proyectos</a>. Y aún me parece que empecé ayer.
+Solo hay un proyecto con cambios reales y necesarios, del que ya hice un
+postmortem en su momento: <a href="https://github.com/Beluki/MovieWar">MovieWar</a>.</p>
+<h2>Colorama y MovieWar</h2>
+<p><a href="https://pypi.python.org/pypi/colorama">Colorama</a> es la librería que uso en MovieWar para poder escribir con colores
+en la terminal. Es portable y funciona correctamente en Windows, Linux, etc...
+O eso se supone.</p>
+<p>Probando en <a href="https://msys2.github.io">MSYS2</a> en lugar de <a href="http://www.mingw.org/wiki/msys">MSYS</a>, me di cuenta de que MovieWar no mostraba
+color alguno. ¿Uh?. La razón es que <a href="https://mintty.github.io">mintty</a> no se comporta como una consola
+normal sino "no interactiva" y que además, ya es capaz por si misma de reconocer
+los códigos de colores ANSI sin necesidad de usar librería alguna.</p>
+<p>Como es imposible saber bajo que consola se está ejecutando MovieWar o las cosas
+soporta, mi solución fue la siguiente:</p>
+<ul>
+<li>Asumir por defecto que la terminal no soporta color alguno.</li>
+<li>Dos parámetros: "--ansi-colors" y "--colorama" para el usuario pueda elegir.</li>
+<li>Usar siempre los <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">códigos de escape ANSI</a> y cerrarlos a mano, sin autoreset en
+colorama.</li>
+</ul>
+<p>El código tiene esta pinta (nota: no se pueden poner ambos parámetros a la vez):</p>
+<div class="codehilite"><pre><span class="c1"># initialize colors as empty strings until we know we want them:</span>
+<span class="n">player_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+<span class="n">game_color</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<span class="n">enable_colors</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">colorama</span> <span class="ow">and</span> <span class="n">HAVE_COLORAMA</span><span class="p">:</span>
+    <span class="n">colorama</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="n">enable_colors</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">ansi_colors</span><span class="p">:</span>
+    <span class="n">enable_colors</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="k">if</span> <span class="n">enable_colors</span><span class="p">:</span>
+    <span class="c1"># red, green, yellow, magenta, cyan:</span>
+    <span class="n">player_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;31m&#39;</span><span class="p">,</span> <span class="s1">&#39;32m&#39;</span><span class="p">,</span> <span class="s1">&#39;33m&#39;</span><span class="p">,</span> <span class="s1">&#39;35m&#39;</span><span class="p">,</span> <span class="s1">&#39;36m&#39;</span><span class="p">]</span>
+
+    <span class="c1"># white:</span>
+    <span class="n">game_color</span> <span class="o">=</span> <span class="s1">&#39;37m&#39;</span>
+</pre></div>
+
+
+<p>Y la función para imprimir en color:</p>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">print_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a message to stdout, possibly in color.</span>
+<span class="sd">    When the message is empty, print a newline.</span>
+
+<span class="sd">    When color is an ansi code: use it for coloring.</span>
+<span class="sd">    When color is an empty string: behave like the regular print().</span>
+<span class="sd">    Auto-reset color back to default after printing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1;&#39;</span> <span class="o">+</span> <span class="n">color</span> <span class="o">+</span> <span class="n">message</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">,</span> <span class="n">flush</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Y ahora todo funciona como debería en cualquier terminal:</p>
+<p>Debian:</p>
+<p><img src="/static/19.png" alt="MovieWar Debian"></p>
+<p>Windows, cmd.exe:</p>
+<p><img src="/static/20.png" alt="MovieWar cmd.exe"></p>
+<p>Windows, MSYS2:</p>
+<p><img src="/static/21.png" alt="MovieWar MSYS2"></p>
+<h2>Otras historias</h2>
+<p>En medio de todo el embrollo, también he terminado un proyecto "nuevo"
+que ya está disponible en Github: <a href="https://github.com/Beluki/Tileboard">Tileboard</a>. Quizá haga un postmortem
+sobre él en el futuro. Es uno de esos programas que parecen triviales a
+simple vista, pero no lo son. De momento el README tiene bastante información.</p>
+<p>Dejo también una curiosidad de la que <a href="http://verleeryescuchar.blogspot.com.es">mi pareja</a> me ha hablado y que
+me ha gustado mucho: <a href="http://apod.nasa.gov/apod/astropix.html">Astropix</a> o "Astronomy Picture of the Day", donde
+hay una foto nueva sobre el cosmos cada día con explicación y todo.</p>
+<p>Si les visitas, no dejes de echar un ojo al archivo, porque llevan haciendo
+esto desde el <a href="http://apod.nasa.gov/apod/archivepix.html">16 de Junio del 95</a>. Hay muchas preciosas. <a href="http://apod.nasa.gov/apod/ap000130.html">Me encanta ésta</a>.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/releases-colorama-y-otras-historias/">permalink</a> |
+            <a href="/post/releases-colorama-y-otras-historias/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cosas que aprendí de... Yava
 </div>
 
@@ -446,163 +560,6 @@ esfuerzo. El <a href="http://beluki.github.io/post/grandmaster">record</a> actua
         <div class="multilink">
             <a href="/post/cosas-que-aprendi-de-dir/">permalink</a> |
             <a href="/post/cosas-que-aprendi-de-dir/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    Cosas que aprendí de... MQLite
-</div>
-
-<div class="subtitle">
-    diciembre 14, 2015
-
-    <div class="multilink">
-        
-            <a href="/archive/postmortem/">postmortem</a>
-
-             | 
-        
-            <a href="/archive/programacion/">programación</a>
-
-             | 
-        
-            <a href="/archive/python/">python</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p><a href="https://github.com/Beluki/MQLite">MQLite</a> es un pequeño dialecto basado en <a href="http://wiki.freebase.com/wiki/MQL">MQL</a>, el lenguaje que se utiliza en
-<a href="https://www.freebase.com">Freebase</a> para realizar búsquedas. Está escrito en Python 3 y es un compilador
-sencillo a un <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a> recursivo de nodos que implementan un método "match".</p>
-<p>Aunque el núcleo de MQLite es un subset de MQL, en realidad implementa bastantes más
-cosas que el original, debido a la necesidad de realizar búsquedas sobre <a href="https://en.wikipedia.org/wiki/JSON">JSON</a>
-arbitrario en lugar de una base de datos concreta.</p>
-<p>Como lo mejor es un ejemplo... El siguiente comando devuelve la lista de repositorios
-que tengo en Github con al menos 1 fork activo.</p>
-<div class="codehilite"><pre>$ curl https://api.github.com/users/Beluki/repos
-<span class="p">|</span> MQlite.py <span class="s1">&#39;[{&quot;name&quot;: null, &quot;forks&quot;: null, &quot;forks &gt;&quot;: 0}]&#39;</span>
-<span class="o">[</span>
-    <span class="o">{</span>
-        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;GaGa&quot;</span>,
-        <span class="s2">&quot;forks&quot;</span>: 2
-    <span class="o">}</span>,
-    <span class="o">{</span>
-        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;MQLite&quot;</span>,
-        <span class="s2">&quot;forks&quot;</span>: 1
-    <span class="o">}</span>
-<span class="o">]</span>
-</pre></div>
-
-
-<h2>Arquitectura</h2>
-<p>MQLite es un proyecto relativamente simple porque no necesita un parser. Utiliza la misma
-sintaxis que JSON. Una vez tenemos los datos a buscar y un archivo .json donde buscarlos,
-solo queda preprocesar la búsqueda para poder hacerla del modo más eficientemente posible.</p>
-<p>Uno de los límites que me puse al implementarlo, es que MQLite nunca debería modificar
-los datos JSON sobre los que busca, ni ordenándolos ni optimizándolos. Al fin y al cabo, si
-realmente necesitas eso, te conviene más una base de datos real.</p>
-<p>Si no podemos modificar los datos, solo queda representar la búsqueda. En el caso de MQLite,
-está hecha a partir de una serie de nodos (objetos) con un método: "match" que devuelve o bien
-una "respuesta" o "vacío" dependiendo de si los datos de la búsqueda coinciden con alguno
-existente en la base de datos.</p>
-<p>Como "None" es un resultado válido, "vacío" se representa con una clase propia:</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">_NoMatch</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A custom class to represent no matches.</span>
-<span class="sd">    Needed because None is a legitimate match.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-<span class="n">NoMatch</span> <span class="o">=</span> <span class="n">_NoMatch</span><span class="p">()</span>
-</pre></div>
-
-
-<p>Y "concuerda con cualquier cosa" se representa así:</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">MatchAny</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Match any input data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">data</span>
-</pre></div>
-
-
-<p>La mayoría de nodos son sencillos. Cadenas, números o booleanos solo concuerdan consigo mismos.
-Otros datos, como las listas o los diccionarios, permiten operaciones más complejas.</p>
-<p>Un ejemplo de búsqueda una vez transformada a esta representación, podría ser:</p>
-<div class="codehilite"><pre><span class="p">[{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="nt">&quot;age &gt;&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="nt">&quot;__sort__&quot;</span><span class="p">:</span> <span class="s2">&quot;age&quot;</span> <span class="p">}]</span>
-</pre></div>
-
-
-<p>Que queda así:</p>
-<div class="codehilite"><pre><span class="n">MatchList</span><span class="p">(</span>
-    <span class="n">MatchDict</span><span class="p">(</span>
-        <span class="p">[{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">MatchAny</span><span class="p">()</span> <span class="p">}],</span>
-        <span class="p">[{</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">ConstraintBiggerThan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="p">}],</span>
-        <span class="p">[{</span> <span class="s2">&quot;__sort__&quot;</span><span class="p">:</span> <span class="n">DirectiveSort</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span> <span class="p">}]</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-
-
-<p>Y significa:</p>
-<p>Dame el nombre de todos los items en la base de datos que cumplan la condición de tener una edad
-mayor de 25 e imprímelos en orden ascencente.</p>
-<h2>Dificultades</h2>
-<p>La parte más complicada de escribir MQLite fue con bastante diferencia encontrar una sintaxis
-adecuada para expresar las búsquedas. En el <a href="https://github.com/Beluki/MQLite">README</a> hay numerosos ejemplos de búsquedas complejas
-con directivas, constraints y todo tipo de opciones.</p>
-<p>Dos limitaciones de MQLite son:</p>
-<p>Es imposible escribir una cláusula "A o B" para dos claves distintas.</p>
-<div class="codehilite"><pre><span class="p">[{</span> <span class="nt">&quot;a:age &gt;&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="nt">&quot;b:name in&quot;</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="p">}]</span>
-</pre></div>
-
-
-<p>Algunas directivas, en particular "__limit__", son sensibles al orden.</p>
-<div class="codehilite"><pre><span class="p">[{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="nt">&quot;__sort__&quot;</span><span class="p">:</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="nt">&quot;__limit__&quot;</span><span class="p">:</span> <span class="mi">3</span> <span class="p">}]</span>
-</pre></div>
-
-
-<p>Esta última búsqueda ordenará PRIMERO y limitará después en lugar de hacerlo al contrario.
-En su API, MQLite usa <a href="https://docs.python.org/3/library/collections.html#collections.OrderedDict">OrderedDict</a> para asegurarse de mantener el orden correcto en cada
-búsqueda (dado que los diccionarios de Python no garantizan un orden concreto).</p>
-<h2>Compatibilidad con Python</h2>
-<p>Aunque MQLite está pensado para JSON, puede buscar en prácticamente cualquier cosa iterable
-de Python. Para hacerlo, basta con usar el objeto "Pattern" de la API en lugar de "JSONPattern".</p>
-<div class="codehilite"><pre><span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;James&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
-        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chess&quot;</span><span class="p">,</span> <span class="s2">&quot;football&quot;</span><span class="p">,</span> <span class="s2">&quot;basketball&quot;</span><span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
-        <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s2">&quot;grades&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;chemistry&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;english&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span> <span class="p">},</span>
-        <span class="s2">&quot;hobbies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reading&quot;</span><span class="p">,</span> <span class="s2">&quot;swimming&quot;</span><span class="p">,</span> <span class="s2">&quot;painting&quot;</span><span class="p">]</span>
-    <span class="p">}</span>
-<span class="p">]</span>
-
-<span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">([{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;age in&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span> <span class="p">}])</span>
-<span class="k">print</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-</pre></div>
-
-
-<p>Como añadido, MQLite incluye una <a href="https://raw.githubusercontent.com/Beluki/MQLite/master/Source/MQLiteSH.py">pequeña shell</a> para poder experimentar con distintas
-búsquedas de manera rápida, explorar datasets, etc... También hay una suite de <a href="https://github.com/Beluki/MQLite/blob/master/Test/MQTest.py">tests</a> disponible.</p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/cosas-que-aprendi-de-MQLite/">permalink</a> |
-            <a href="/post/cosas-que-aprendi-de-MQLite/#disqus_thread">comentarios</a>
         </div>
     
 
