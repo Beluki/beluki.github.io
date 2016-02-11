@@ -2,12 +2,10 @@ title: Cosas que aprendí de... 404
 date: 2015-12-17
 tags: ['postmortem', 'programacion', 'python']
 
-
 [404][] es un pequeño programa escrito en Python que permite comprobar el estado
 de una serie de enlaces en una página web.
 
 Un ejemplo:
-
 
     ::bash
     $ 404.py http://beluki.github.io --threads 10 --internal follow --external check

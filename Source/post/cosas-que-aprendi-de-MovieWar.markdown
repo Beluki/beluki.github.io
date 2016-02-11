@@ -2,7 +2,6 @@ title: Cosas que aprendí de... MovieWar
 date: 2015-12-18
 tags: ['postmortem', 'programacion', 'python']
 
-
 [MovieWar][] es un trivial multijugador para consola escrito en Python. Es parecido
 a "[El precio justo][]", donde los jugadores intentan adivinar la fecha de salida
 de una película a partir de su título.
