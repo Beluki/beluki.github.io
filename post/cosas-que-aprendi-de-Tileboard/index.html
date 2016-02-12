@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Beluki</title>
+        <link rel="stylesheet" href="/static/style.css" type="text/css">
+        <link rel="stylesheet" href="/static/codehilite.css" type="text/css">
+    </head>
+
+    <body>
+        <div class="top-bar">
+            <ul>
+                <li> <a href="/">índice</a> </li>
+                <li> <a href="/archive/">archivo</a> </li>
+                <li> <a href="/page/about/">acerca de</a> </li>
+            </ul>
+        </div>
+        <div class="wrapper">
+            
+    
+
+
+<div class="title">
+    Cosas que aprendí de... Tileboard
+</div>
+
+<div class="subtitle">
+    febrero 12, 2016
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+             | 
+        
+            <a href="/archive/python/">python</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p><a href="https://github.com/Beluki/Tileboard">Tileboard</a> es un programa escrito en Python 3 que genera diagramas de
+juegos de mesa, como por ejemplo ajedrez. Lo escribí porque hace un tiempo
+inventé una variante de ajedrez que utiliza un tablero distinto al habitual
+y no encontré ningún otro programa que pudiese dibujarlo.</p>
+<p>Sobre el juego en si, de momento no diré nada, pero he aquí una foto el tablero
+en cuestión, que tiene 5x7 casillas en lugar de las habituales:</p>
+<p><img src="/static/22.png" alt="Duchess"></p>
+<p>Básicamente, lo que buscaba era un programa que:</p>
+<ul>
+<li>Pudiese generar cualquier tablero "parecido" al de ajedrez.</li>
+<li>Con o sin coordenadas.</li>
+<li>Con cualquier tipo de piezas (othello, reversi, etc...).</li>
+<li>En cualquier tamaño, tanto de imagen como de casillas.</li>
+<li>Personalizable en cuestión de colores, fuentes, etc...</li>
+<li>Usase poca memoria para ello (para poder imprimir el tablero real, en grande).</li>
+</ul>
+<p>¿No parece difícil no?</p>
+<h2>Arquitectura</h2>
+<p>Como librería para manipular imágenes, decidí escoger <a href="https://pypi.python.org/pypi/Pillow/3.1.0">Pillow</a>. Ya la
+usé en su momento para otros proyectos con buenos resultados. Es rápida
+y práctica.</p>
+<p>En cuestión de código, Tileboard tiene unas 900 líneas, divididas más
+o menos en las siguientes tareas:</p>
+<ul>
+<li>Parsear posiciones FEN.</li>
+<li>Representar el tablero a dibujar.</li>
+<li>Conversiones de base para los bordes (base26).</li>
+<li>Parsear notación algebraica (A1, H2...)</li>
+<li>Cargar imágenes y fuentes.</li>
+<li>Cálculos de tamaño de imagen, borde, etc...</li>
+<li>Funciones utilidad de ayuda para dibujar.</li>
+<li>Funciones que realmente dibujan el tablero.</li>
+<li>El parser de línea de comandos.</li>
+<li>Dibujado del tablero en si.</li>
+</ul>
+<p>La mayoría del código es simple (y podría serlo más), excepto quizá
+los cálculos de cómo dibujar las letras/números de los bordes y del
+tamaño de la imagen final, que depende del tamaño de las piezas del
+tablero y de los elementos que la componen (borde, líneas adyacentes...)</p>
+<p>Lo que también es, es repetitivo. Una buena muestra de ello podría ser:</p>
+<div class="codehilite"><pre><span class="c1"># outer outline:</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">outer_outline_disable</span><span class="p">:</span>
+    <span class="n">draw_rectangle_outline</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                              <span class="n">x1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                              <span class="n">y1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                              <span class="n">x2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="n">y2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">width</span> <span class="o">=</span> <span class="n">outer_outline_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">color</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">outer_outline_color</span><span class="p">)</span>
+
+<span class="c1"># border:</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">border_disable</span><span class="p">:</span>
+    <span class="n">draw_rectangle_outline</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                              <span class="n">x1</span> <span class="o">=</span> <span class="n">outer_outline_size</span><span class="p">,</span>
+                              <span class="n">y1</span> <span class="o">=</span> <span class="n">outer_outline_size</span><span class="p">,</span>
+                              <span class="n">x2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">outer_outline_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="n">y2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">outer_outline_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">width</span> <span class="o">=</span> <span class="n">border_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">color</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">border_color</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Y así para cada elemento del tablero, incluyendo línea exterior, borde, línea
+interior, casillas, piezas y cruces y puntos para señalar posiciones. Es tedioso
+pero diría sin duda que volvería a escribirlo igual si tuviese que hacerlo.</p>
+<h2>Algunas lecciones aprendidas</h2>
+<p>Me quedo con:</p>
+<ul>
+<li>Dibujar siempre todo por separado.</li>
+<li>Partir de (0, 0) al dibujar. Es mucho más fácil razonar con coordenadas absolutas.</li>
+<li>Separar funciones con conocimiento específico y utilidades, especialmente de dibujo.</li>
+<li>Tener modo de desactivar cada elemento para poder depurar cómodamente.</li>
+</ul>
+<p>Y la más importante: <strong>leer la documentación</strong> de las librerías que uso.</p>
+<p>De la de <a href="https://pillow.readthedocs.org/en/3.1.x/reference/ImageDraw.html">ImageDraw</a>:</p>
+<div class="codehilite"><pre><span class="n">PIL</span><span class="o">.</span><span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="n">Draws</span> <span class="n">a</span> <span class="n">rectangle</span><span class="o">.</span>
+<span class="n">Parameters</span><span class="p">:</span>
+
+    <span class="n">xy</span><span class="p">:</span> <span class="n">Four</span> <span class="n">points</span> <span class="n">to</span> <span class="n">define</span> <span class="n">the</span> <span class="n">bounding</span> <span class="n">box</span><span class="o">.</span>
+        <span class="n">Sequence</span> <span class="n">of</span> <span class="n">either</span> <span class="p">[(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)]</span> <span class="ow">or</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">]</span><span class="o">.</span>
+        <span class="n">The</span> <span class="n">second</span> <span class="n">point</span> <span class="ow">is</span> <span class="n">just</span> <span class="n">outside</span> <span class="n">the</span> <span class="n">drawn</span> <span class="n">rectangle</span><span class="o">.</span>
+
+        <span class="o">...</span>
+</pre></div>
+
+
+<p>"The second point is just outside the drawn rectangle." De ahí el -1 en casi todas
+las funciones de dibujado de Tileboard y varias horas de trabajo de depuración.</p>
+<p>Es curioso que al final lo más fácil de todo el asunto fuese dibujar las piezas.</p>
+<h2>Conclusiones</h2>
+<p>La verdad es que estoy bastante satisfecho con el resultado. Quizá me pasé un poco
+en la cantidad de argumentos que tiene, pero es flexible y práctico. En el
+README hay ejemplos de otros juegos como las Damas o incluso de un Bejeweled
+con sus gemas.</p>
+<p>Dejo una imagen de bonus, mostrando el proceso de dibujado de un tablero
+normal de ajedrez. Faltan algunos frames que estarían en otras imágenes,
+dado que este tablero no tiene huecos, cruces o puntos, pero la idea es la misma:
+ir construyendo todo de manera independiente.</p>
+<p>(la imagen comienza siendo completamente transparente):</p>
+<p><img src="/static/23.gif" alt="Tileboard GIF"></p>
+<p>Como con todos los proyectos que he estado revisando, he <a href="https://github.com/Beluki/Tileboard/releases">hecho release</a>.</p>
+</div>
+
+    
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    (function() {
+        var disqus = document.createElement('script');
+
+        disqus.type = 'text/javascript';
+        disqus.async = true;
+        disqus.src = '//beluki.disqus.com/embed.js';
+
+        (document.getElementsByTagName('head')[0] ||
+         document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+</script>
+
+<noscript>
+    <div class="content">
+        <p> (no se pueden mostrar los comentarios, Javascript está desactivado) </p>
+    </div>
+</noscript>
+
+
+        </div>
+    </body>
+</html>

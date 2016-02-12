@@ -30,6 +30,78 @@
 
 
 <div class="title">
+    Stack Overflow
+</div>
+
+<div class="subtitle">
+    marzo 06, 2014
+
+    <div class="multilink">
+        
+            <a href="/archive/programacion/">programación</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p>Leo una <a href="http://stackoverflow.com/questions/62188/stack-overflow-code-golf">entrada en Stack Overflow</a> conmemorando su lanzamiento en la que
+el autor invita a los usuarios a crear el programa más pequeño posible
+que pueda causar un error de <a href="http://en.wikipedia.org/wiki/Stack_overflow">stack overflow</a>.</p>
+<p>He aquí una posible solución. No es pequeña, pero es interesante. Es algo
+que puede ocurrir en el uso diario y que provoca un stack overflow en
+casi todas las implementaciones de lenguajes que conozco.</p>
+<p>La idea es tan simple como crear dos estructuras de datos extremadamente
+profundas y comprobar su igualdad. El siguiente ejemplo usa listas en Python.</p>
+<div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">deep_list</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">deep_list</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">==</span> <span class="n">deep_list</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="ne">RuntimeError</span><span class="p">:</span> <span class="n">maximum</span> <span class="n">recursion</span> <span class="n">depth</span> <span class="n">exceeded</span> <span class="ow">in</span> <span class="n">comparison</span>
+</pre></div>
+
+
+<p>La mayoría de implementaciones tienen en cuenta la longitud de las estructuras
+de datos a la hora de escribir el código que las compara, pero no su
+profundidad. El mismo código produce un stack overflow en las implementaciones
+actuales de Ruby, Lua, C#, Java y muchos otros lenguajes.</p>
+<p>Lo mismo, escrito en Scheme y ejecutado en <a href="http://sisc-scheme.org">SISC</a>.</p>
+<div class="codehilite"><pre><span class="nv">&gt;</span> <span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">deep-list</span> <span class="nv">n</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">let </span><span class="nv">loop</span> <span class="p">((</span><span class="nf">ls</span> <span class="o">&#39;</span><span class="p">())</span> <span class="p">(</span><span class="nf">n</span> <span class="nv">n</span><span class="p">))</span>
+          <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">zero? </span><span class="nv">n</span><span class="p">)</span>
+              <span class="nv">ls</span>
+              <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">ls</span> <span class="o">&#39;</span><span class="p">())</span> <span class="p">(</span><span class="nb">- </span><span class="nv">n</span> <span class="mi">1</span><span class="p">)))))</span>
+
+<span class="nv">&gt;</span> <span class="p">(</span><span class="nb">equal? </span><span class="p">(</span><span class="nf">deep-list</span> <span class="mi">10000</span><span class="p">)</span> <span class="p">(</span><span class="nf">deep-list</span> <span class="mi">10000</span><span class="p">))</span>
+<span class="nv">Exception</span> <span class="nv">in</span> <span class="nv">thread</span> <span class="s">&quot;main&quot;</span> <span class="nv">java</span><span class="o">.</span><span class="nv">lang</span><span class="o">.</span><span class="nv">StackOverflowError</span>
+  <span class="nv">at</span> <span class="nv">sisc</span><span class="o">.</span><span class="nv">data</span><span class="o">.</span><span class="nv">Pair</span><span class="o">.</span><span class="nv">car</span><span class="p">(</span><span class="nf">Unknown</span> <span class="nv">Source</span><span class="p">)</span>
+  <span class="nv">at</span> <span class="nv">sisc</span><span class="o">.</span><span class="nv">data</span><span class="o">.</span><span class="nv">Pair</span><span class="o">.</span><span class="nv">valueEqual</span><span class="p">(</span><span class="nf">Unknown</span> <span class="nv">Source</span><span class="p">)</span>
+  <span class="nv">at</span> <span class="nv">sisc</span><span class="o">.</span><span class="nv">data</span><span class="o">.</span><span class="nv">Pair</span><span class="o">.</span><span class="nv">valueEqual</span><span class="p">(</span><span class="nf">Unknown</span> <span class="nv">Source</span><span class="p">)</span>
+  <span class="o">...</span>
+</pre></div>
+
+
+<p>Dos excepciones notables: <a href="http://s48.org">Scheme48</a> y <a href="http://racket-lang.org">Racket</a> soportan listas
+de profundidad arbitraria, únicamente limitadas por la cantidad
+de memoria disponible en el sistema.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/stack-overflow/">permalink</a> |
+            <a href="/post/stack-overflow/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Cine mudo
 </div>
 
@@ -279,64 +351,6 @@ expresar la solución.</p>
         <div class="multilink">
             <a href="/post/un-solo-turno/">permalink</a> |
             <a href="/post/un-solo-turno/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    ExitProcess
-</div>
-
-<div class="subtitle">
-    septiembre 22, 2013
-
-    <div class="multilink">
-        
-            <a href="/archive/programacion/">programación</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p>El caso es que estos últimos días he estado dándole vueltas a una idea
-interesante para programar un juego, de modo que hoy he estado revisando
-<a href="https://github.com/Beluki/4k">4k</a> y <a href="https://github.com/Beluki/4kGL">4kGL</a>, pensando en la posibilidad de usar uno de ellos como
-punto de partida.</p>
-<p>La idea me gusta lo bastante para haber decidido implementarlo de forma
-portable. Probablemente usaré C++ con <a href="http://www.libsdl.org">SDL</a> o <a href="http://haxe.org">Haxe</a>, así que el tema
-de hacerlo sobre la API de Windows queda descartado.</p>
-<p>Sin embargo, durante el repaso he visto una cosa que no recordaba
-y que me ha llamado la atención. El código relevante es el siguiente:</p>
-<div class="codehilite"><pre><span class="kt">void</span>
-<span class="nf">Shutdown</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">uExitCode</span><span class="p">)</span> <span class="p">{</span>
-    <span class="p">...</span>
-
-    <span class="c1">// without WinMainCRTStartup() we must exit the process ourselves:</span>
-    <span class="n">ExitProcess</span><span class="p">(</span><span class="n">uExitCode</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-
-
-<p>¿Uh? ¿Por qué se llama manualmente a <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms682658%28v=vs.85%29.aspx">ExitProcess</a>?</p>
-<p>4k y 4kGL están pensados para ser usados sin librería de C. En un programa
-normal que sí usa libc, el punto de entrada real no es "WinMain", sino
-"WinMainCRTStartup", que se encarga de ejecutar primero WinMain
-y luego ExitProcess.</p>
-<p>La pregunta se reduce entonces a: ¿Por qué hace falta llamar a ExitProcess?
-La respuesta está en la siguiente imagen, tomada de <a href="http://technet.microsoft.com/en-us/sysinternals/bb896653.aspx">Process Explorer</a>:</p>
-<p><img src="/static/7.png" alt="Process Explorer"></p>
-<p>Un proceso de Windows no se termina hasta que <a href="http://blogs.msdn.com/b/oldnewthing/archive/2010/08/27/10054832.aspx">todos sus hilos terminan</a>.
-4kGL en realidad no usa uno, sino dos hilos. El segundo procede del driver
-de ATI y se lanza de manera automática al utilizar OpenGL.</p>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/exitprocess/">permalink</a> |
-            <a href="/post/exitprocess/#disqus_thread">comentarios</a>
         </div>
     
 

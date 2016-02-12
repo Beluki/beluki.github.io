@@ -30,6 +30,145 @@
 
 
 <div class="title">
+    Cosas que aprendí de... Tileboard
+</div>
+
+<div class="subtitle">
+    febrero 12, 2016
+
+    <div class="multilink">
+        
+            <a href="/archive/postmortem/">postmortem</a>
+
+             | 
+        
+            <a href="/archive/programacion/">programación</a>
+
+             | 
+        
+            <a href="/archive/python/">python</a>
+
+            
+        
+    </div>
+</div>
+
+<div class="content">
+    <p><a href="https://github.com/Beluki/Tileboard">Tileboard</a> es un programa escrito en Python 3 que genera diagramas de
+juegos de mesa, como por ejemplo ajedrez. Lo escribí porque hace un tiempo
+inventé una variante de ajedrez que utiliza un tablero distinto al habitual
+y no encontré ningún otro programa que pudiese dibujarlo.</p>
+<p>Sobre el juego en si, de momento no diré nada, pero he aquí una foto el tablero
+en cuestión, que tiene 5x7 casillas en lugar de las habituales:</p>
+<p><img src="/static/22.png" alt="Duchess"></p>
+<p>Básicamente, lo que buscaba era un programa que:</p>
+<ul>
+<li>Pudiese generar cualquier tablero "parecido" al de ajedrez.</li>
+<li>Con o sin coordenadas.</li>
+<li>Con cualquier tipo de piezas (othello, reversi, etc...).</li>
+<li>En cualquier tamaño, tanto de imagen como de casillas.</li>
+<li>Personalizable en cuestión de colores, fuentes, etc...</li>
+<li>Usase poca memoria para ello (para poder imprimir el tablero real, en grande).</li>
+</ul>
+<p>¿No parece difícil no?</p>
+<h2>Arquitectura</h2>
+<p>Como librería para manipular imágenes, decidí escoger <a href="https://pypi.python.org/pypi/Pillow/3.1.0">Pillow</a>. Ya la
+usé en su momento para otros proyectos con buenos resultados. Es rápida
+y práctica.</p>
+<p>En cuestión de código, Tileboard tiene unas 900 líneas, divididas más
+o menos en las siguientes tareas:</p>
+<ul>
+<li>Parsear posiciones FEN.</li>
+<li>Representar el tablero a dibujar.</li>
+<li>Conversiones de base para los bordes (base26).</li>
+<li>Parsear notación algebraica (A1, H2...)</li>
+<li>Cargar imágenes y fuentes.</li>
+<li>Cálculos de tamaño de imagen, borde, etc...</li>
+<li>Funciones utilidad de ayuda para dibujar.</li>
+<li>Funciones que realmente dibujan el tablero.</li>
+<li>El parser de línea de comandos.</li>
+<li>Dibujado del tablero en si.</li>
+</ul>
+<p>La mayoría del código es simple (y podría serlo más), excepto quizá
+los cálculos de cómo dibujar las letras/números de los bordes y del
+tamaño de la imagen final, que depende del tamaño de las piezas del
+tablero y de los elementos que la componen (borde, líneas adyacentes...)</p>
+<p>Lo que también es, es repetitivo. Una buena muestra de ello podría ser:</p>
+<div class="codehilite"><pre><span class="c1"># outer outline:</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">outer_outline_disable</span><span class="p">:</span>
+    <span class="n">draw_rectangle_outline</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                              <span class="n">x1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                              <span class="n">y1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                              <span class="n">x2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="n">y2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">width</span> <span class="o">=</span> <span class="n">outer_outline_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">color</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">outer_outline_color</span><span class="p">)</span>
+
+<span class="c1"># border:</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">border_disable</span><span class="p">:</span>
+    <span class="n">draw_rectangle_outline</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                              <span class="n">x1</span> <span class="o">=</span> <span class="n">outer_outline_size</span><span class="p">,</span>
+                              <span class="n">y1</span> <span class="o">=</span> <span class="n">outer_outline_size</span><span class="p">,</span>
+                              <span class="n">x2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">outer_outline_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="n">y2</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">outer_outline_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">width</span> <span class="o">=</span> <span class="n">border_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">color</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">border_color</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Y así para cada elemento del tablero, incluyendo línea exterior, borde, línea
+interior, casillas, piezas y cruces y puntos para señalar posiciones. Es tedioso
+pero diría sin duda que volvería a escribirlo igual si tuviese que hacerlo.</p>
+<h2>Algunas lecciones aprendidas</h2>
+<p>Me quedo con:</p>
+<ul>
+<li>Dibujar siempre todo por separado.</li>
+<li>Partir de (0, 0) al dibujar. Es mucho más fácil razonar con coordenadas absolutas.</li>
+<li>Separar funciones con conocimiento específico y utilidades, especialmente de dibujo.</li>
+<li>Tener modo de desactivar cada elemento para poder depurar cómodamente.</li>
+</ul>
+<p>Y la más importante: <strong>leer la documentación</strong> de las librerías que uso.</p>
+<p>De la de <a href="https://pillow.readthedocs.org/en/3.1.x/reference/ImageDraw.html">ImageDraw</a>:</p>
+<div class="codehilite"><pre><span class="n">PIL</span><span class="o">.</span><span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="n">Draws</span> <span class="n">a</span> <span class="n">rectangle</span><span class="o">.</span>
+<span class="n">Parameters</span><span class="p">:</span>
+
+    <span class="n">xy</span><span class="p">:</span> <span class="n">Four</span> <span class="n">points</span> <span class="n">to</span> <span class="n">define</span> <span class="n">the</span> <span class="n">bounding</span> <span class="n">box</span><span class="o">.</span>
+        <span class="n">Sequence</span> <span class="n">of</span> <span class="n">either</span> <span class="p">[(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)]</span> <span class="ow">or</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">]</span><span class="o">.</span>
+        <span class="n">The</span> <span class="n">second</span> <span class="n">point</span> <span class="ow">is</span> <span class="n">just</span> <span class="n">outside</span> <span class="n">the</span> <span class="n">drawn</span> <span class="n">rectangle</span><span class="o">.</span>
+
+        <span class="o">...</span>
+</pre></div>
+
+
+<p>"The second point is just outside the drawn rectangle." De ahí el -1 en casi todas
+las funciones de dibujado de Tileboard y varias horas de trabajo de depuración.</p>
+<p>Es curioso que al final lo más fácil de todo el asunto fuese dibujar las piezas.</p>
+<h2>Conclusiones</h2>
+<p>La verdad es que estoy bastante satisfecho con el resultado. Quizá me pasé un poco
+en la cantidad de argumentos que tiene, pero es flexible y práctico. En el
+README hay ejemplos de otros juegos como las Damas o incluso de un Bejeweled
+con sus gemas.</p>
+<p>Dejo una imagen de bonus, mostrando el proceso de dibujado de un tablero
+normal de ajedrez. Faltan algunos frames que estarían en otras imágenes,
+dado que este tablero no tiene huecos, cruces o puntos, pero la idea es la misma:
+ir construyendo todo de manera independiente.</p>
+<p>(la imagen comienza siendo completamente transparente):</p>
+<p><img src="/static/23.gif" alt="Tileboard GIF"></p>
+<p>Como con todos los proyectos que he estado revisando, he <a href="https://github.com/Beluki/Tileboard/releases">hecho release</a>.</p>
+</div>
+
+
+        <div class="multilink">
+            <a href="/post/cosas-que-aprendi-de-Tileboard/">permalink</a> |
+            <a href="/post/cosas-que-aprendi-de-Tileboard/#disqus_thread">comentarios</a>
+        </div>
+    
+        
+
+
+<div class="title">
     Releases, Colorama y otras historias
 </div>
 
@@ -408,158 +547,6 @@ no se puede obtener un código de estado válido en un tiempo aceptable.</p>
         <div class="multilink">
             <a href="/post/cosas-que-aprendi-de-404/">permalink</a> |
             <a href="/post/cosas-que-aprendi-de-404/#disqus_thread">comentarios</a>
-        </div>
-    
-        
-
-
-<div class="title">
-    Cosas que aprendí de... dir
-</div>
-
-<div class="subtitle">
-    diciembre 15, 2015
-
-    <div class="multilink">
-        
-            <a href="/archive/lua/">lua</a>
-
-             | 
-        
-            <a href="/archive/postmortem/">postmortem</a>
-
-             | 
-        
-            <a href="/archive/programacion/">programación</a>
-
-            
-        
-    </div>
-</div>
-
-<div class="content">
-    <p><a href="https://github.com/Beluki/dir">dir</a> es un videojuego multiplataforma escrito en <a href="http://www.lua.org">Lua</a> que utiliza el
-framework <a href="https://love2d.org">Löve2D</a>. El estilo de juego es parecido a Bejeweled o Tetris:
-juntar piezas de un mismo color para que desaparezcan.</p>
-<p>Es también mi intento de diseñar un juego que resulte atractivo a audiencias
-casuales y hardcore, sin depender de límites de tiempo o reflejos rápidos.</p>
-<p>Tiene esta pinta:</p>
-<p><img src="/static/15.png" alt="dir"></p>
-<p>Si quieres descargarlo y echar una partida antes de continuar leyendo
-<a href="https://github.com/Beluki/dir/releases">haz click aquí</a>.</p>
-<h2>Características</h2>
-<p><a href="https://github.com/Beluki/dir">dir</a> podría definirse tanto por las cosas que sí tiene:</p>
-<ul>
-<li>Una mecánica original, basada en acumular combos.</li>
-<li>Altamente rejugable. Una partida completa dura entre 5 y 15 minutos.</li>
-<li>Sistema de puntuación y ranking altamente depurado.</li>
-<li>El juego es completamente independiente de la resolución, dado que dibuja
-todas las piezas vectorialmente. Todo en <a href="https://github.com/Beluki/dir">dir</a> es o bien un cuadrado o bien un trozo de texto.</li>
-<li>Tres temas de colores.</li>
-<li>Portable. No utiliza el registro de Windows, ni la carpeta Mis Documentos, etc...</li>
-</ul>
-<p>... como por las que no:</p>
-<ul>
-<li>Una pantalla de título.</li>
-<li>Múltiples niveles de dificultad.</li>
-<li>Múltiples modos de juego.</li>
-<li>Cargar o Guardar partida.</li>
-<li>Sonido o música.</li>
-<li>Límite de puntuación o final.</li>
-<li>Pantalla de "game over".</li>
-</ul>
-<h2>Löve2D</h2>
-<p>Antes de empezar a programar el juego, evalué múltiples frameworks como posibles
-candidatos. Los principales fueron <a href="http://haxe.org">Haxe</a>, <a href="https://love2d.org">Löve2D</a>, <a href="http://www.monogame.net">Monogame</a> y <a href="http://pygame.org/hifi.html">pygame</a>.</p>
-<p>Dos de ellos, Monogame y pygame, los descarté en parte por sus dependencias (<a href="http://www.microsoft.com/net">.NET</a> y <a href="https://www.python.org">Python</a>
-respectivamente) y en parte por <a href="http://stackoverflow.com/questions/23305577/draw-rectangle-in-monogame">complicaciones</a>
-a la hora de hacer tareas que deberían ser realmente simples, como dibujar un cuadrado en pantalla.</p>
-<p>En el caso de Haxe, las incompatibilidades entre la versión web y la versión
-escritorio fueron la principal razón de descartarlo. Basta con echar un ojo
-a la demo de <a href="http://www.joshuagranick.com/2012/02/22/nme-game-example-pirate-pig">PiratePig</a> en el blog de Joshua Granick para darse cuenta de
-las diferencias (compara por ejemplo la versión HTML5 y Flash).</p>
-<p>A día de hoy no sé si puedo decir que Löve fuese el framework "perfecto", pero
-volvería a utilizarlo para programar <a href="https://github.com/Beluki/dir">dir</a>. La <a href="https://love2d.org/wiki/Main_Page">documentación</a>
-es excelente. El <a href="https://love2d.org/forums/">foro</a> también.</p>
-<h2>Lua</h2>
-<p>Utilizar Löve2D implica utilizar Lua.</p>
-<p>Lua es en general un lenguaje muy bien diseñado con alguna que otra pega
-importante, aunque todas las pegas tienen sentido en el contexto donde Lua
-suele utilizarse.</p>
-<p>Por ejemplo: Lua no tiene una librería standard decente, no tiene excepciones,
-no tiene orientación a objetos, no tiene mil cosas que normalmente son necesarias
-cuando no estás programando algo embebido. Löve2D suple en parte la falta de esta
-funcionalidad a base de módulos adicionales como "love.audio", "love.filesystem",
-etc...</p>
-<p>Lua tampoco tiene un modo de distinguir "nil" de "variable no inicializada", lo cual
-me ha causado muchos más dolores de cabeza a la hora de programar dir que cualquier
-módulo aparte que haya tenido que escribir.</p>
-<h2>Arquitectura</h2>
-<p><a href="https://github.com/Beluki/dir">dir</a> está escrito de modo que <a href="https://github.com/Beluki/dir/tree/master/Source">cada parte</a> es lo más independiente posible de todas
-las demás. Cada componente usa además su propia noción de orientación a objetos (closures
-en realidad), con un "self" explícito al estilo Python.</p>
-<p>Por ejemplo, para inicializar el juego:</p>
-<div class="codehilite"><pre><span class="k">function</span> <span class="nf">Game</span> <span class="p">()</span>
-    <span class="kd">local</span> <span class="n">self</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="c1">-- initialization:</span>
-    <span class="n">self</span><span class="p">.</span><span class="n">init</span> <span class="o">=</span> <span class="k">function</span> <span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">grid_width</span> <span class="o">=</span> <span class="mi">5</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">grid_height</span> <span class="o">=</span> <span class="mi">5</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">hud</span> <span class="o">=</span> <span class="n">Hud</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">Menu</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">screen</span> <span class="o">=</span> <span class="n">Screen</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">theme</span> <span class="o">=</span> <span class="n">Theme</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">resize</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">restart</span><span class="p">()</span>
-    <span class="k">end</span>
-
-    <span class="c1">-- otros &quot;métodos&quot;...</span>
-
-    <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">self</span>
-<span class="k">end</span>
-</pre></div>
-
-
-<p>donde <a href="https://github.com/Beluki/dir/blob/master/Source/game/grid.lua">Grid</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/hud.lua">Hud</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/menu.lua">Menu</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/screen.lua">Screen</a>, <a href="https://github.com/Beluki/dir/blob/master/Source/game/state.lua">State</a> y <a href="https://github.com/Beluki/dir/blob/master/Source/game/theme.lua">Theme</a> son los
-módulos que se combinan para dar forma al juego final.</p>
-<p>A más bajo nivel, cada módulo es responsable de sus propias animaciones.
-Por ejemplo, Grid contiene todas las definiciones necesarias para que las piezas
-del grid que están apareciendo, desapareciendo, moviéndose, etc mantengan su
-estado entre frame y frame.</p>
-<p>Un detalle importante aquí es que en <a href="https://github.com/Beluki/dir">dir</a> solo existe una animación a la vez
-en todo el grid. No es posible tener piezas que se muevan, mientras otras desaparecen
-al mismo tiempo. Esto simplifica mucho la implementación, porque puede hacerse en
-base al concepto de "Tween", donde cada animación se enlaza con la siguiente a través
-de una función puente (ver por ejemplo grid.appearing.oncomplete).</p>
-<p>El hilo conductor final es <a href="https://github.com/Beluki/dir/blob/master/Source/game/state.lua">State</a>, que decide qué hacer en base al ranking y la
-puntuación actuales, cada vez que las piezas cambian de estado.</p>
-<p>Finalmente, en la carpeta <a href="https://github.com/Beluki/dir/tree/master/Source/lib">lib</a> hay dos pequeñas librerías. Una para manipular arrays
-de dos dimensiones y otra con wrappers sobre la funcionalidad básica de Löve2D. Esta última
-es totalmente prescindible, pero hará más fácil portar <a href="https://github.com/Beluki/dir">dir</a> a futuras versiones de Löve
-si este cambia.</p>
-<h2>Conclusiones</h2>
-<p>Estoy muy orgulloso del resultado obtenido con <a href="https://github.com/Beluki/dir">dir</a>. Creo que el resultado ha merecido el
-esfuerzo. El <a href="http://beluki.github.io/post/grandmaster">record</a> actual será además muy difícil de superar.</p>
-<h2>Bonus</h2>
-<p>Aquí puedes ver un vídeo de un usuario del foro de Löve2D jugando a dir:</p>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/B6CJWG67TdE" frameborder="0" allowfullscreen>
-</iframe>
-
-<p>Y un port a Android:</p>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/sUHYoeOMYGU" frameborder="0" allowfullscreen>
-</iframe>
-</div>
-
-
-        <div class="multilink">
-            <a href="/post/cosas-que-aprendi-de-dir/">permalink</a> |
-            <a href="/post/cosas-que-aprendi-de-dir/#disqus_thread">comentarios</a>
         </div>
     
 
